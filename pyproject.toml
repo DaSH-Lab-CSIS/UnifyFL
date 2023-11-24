@@ -1,14 +1,15 @@
+[build-system]
+requires = ["poetry-core>=1.4.0"]
+build-backend = "poetry.masonry.api"
+
 [tool.poetry]
 name = "ekatrafl"
 version = "0.1.0"
 description = ""
-authors = ["Sarang S <email.sarangs@gmail.com>"]
-readme = "README.md"
+authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa.bits-pilani.ac.in>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+python = ">=3.8,<3.11"
+flwr = ">=1.0,<2.0"
+torch = "1.13.1"
+torchvision = "0.14.1"

@@ -1,0 +1,180 @@
+"""Sync EkatraFl servevr implementation."""
+from collections import OrderedDict
+from time import time
+from typing import Dict, Optional, Tuple, List
+from flwr.common import parameters_to_ndarrays
+from flwr.common.typing import Parameters, Scalar, Metrics
+
+from datetime import datetime
+import logging
+import sys
+
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+from base.contract import create_reg_contract, create_sync_contract
+from base.custom_server import Server
+
+from base.ipfs import load_model_ipfs, save_model_ipfs
+import flwr as fl
+from base.model import models
+import torch
+import os
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(levelname)s:     %(message)s - %(asctime)s",
+)
+logger = logging.getLogger(__name__)
+# TODO: Read config
+
+workload = "cifar10"
+geth_endpoint = "http://localhost:8545"
+account = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
+registration_contract_address = "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
+sync_contract_address = "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2"
+
+
+model = models[workload]()
+
+trainloader, testloader = model.load_data()
+
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+
+def set_weights(model, parameters):
+    keys = [k for k in model.state_dict().keys() if "bn" not in k]
+    params_dict = zip(keys, parameters)
+    state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+    model.load_state_dict(state_dict, strict=False)
+
+
+w3 = Web3(Web3.HTTPProvider(geth_endpoint))
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+w3.eth.default_account = account
+
+registration_contract = create_reg_contract(w3, registration_contract_address)
+# TODO: Add registration
+sync_contract = create_sync_contract(w3, sync_contract_address)
+
+
+time_start = str(datetime.now().strftime("%d-%H-%M-%S"))
+os.makedirs(f"save/sync/{workload}/{time_start}", exist_ok=True)
+
+
+# def evaluate(
+#     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
+# ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
+#     model_instance = model()
+#     set_weights(model, parameters)
+#     model.to(DEVICE)
+#
+#     loss, accuracy = model_instance.test(testloader, device=DEVICE)
+#     print(loss, accuracy)
+#     return loss, {"accuracy": accuracy}
+
+
+class SyncServer(Server):
+    """Sync server implementation.
+    Warning: Server is a subclass of fl.server.Server, setting properties that
+    are common to fl.server.Server might lead to unexpected behaviour.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.round_ongoing = False
+        self.model = model()
+
+    def set_parameters(self, parameters):
+        print("set param", type(parameters))
+        params_dict = zip(self.model.state_dict().keys(), parameters)
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+        self.model.load_state_dict(state_dict, strict=True)
+
+    def run_rounds(self):
+        global round_id
+        events = set()
+        last_seen_block = w3.eth.block_number
+        # TODO: remove threading and integrate into single_round
+        while True:
+            for event in sync_contract.events.StartTraining().get_logs(
+                fromBlock=last_seen_block
+            ):
+                if event not in events:
+                    events.add(event)
+                    last_seen_block = event["blockNumber"]
+                    if not self.round_ongoing:
+                        round_id = event["args"]["round"]
+                        self.single_round()
+            time.sleep(1)
+
+    def aggregate_models(self):
+        global_models = filter(
+            lambda x: x[0] != "",
+            zip(*sync_contract.functions.getLatestModelsWithScores().call()),
+        )
+        selected_models = list(
+            map(
+                lambda x: x[0],
+                sorted(
+                    map(lambda x: (x[0], sum(x[1]) / (len(x[1]) + 1)), global_models),
+                    key=lambda x: x[1],
+                    reverse=True,
+                )[:3],
+            )
+        )
+
+        if len(selected_models) > 0:
+            logger.info(f"Aggregating models {selected_models}")
+
+            # TODO: Load from IPFS
+            # model.load_state_dict(
+            #     strategy(
+            #         await asyncio.gather(
+            #             *[load_model_ipfs(cid, ipfs_host) for cid in selected_models]
+            #         )
+            #     )
+            # )
+
+            cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
+            # TODO: add host to save path
+            torch.save(
+                self.model.state_dict(),
+                f"save/sync/{workload}/{time_start}/{round_id:02d}-{cur_time}-global.pt",
+            )
+
+    def single_round(self):
+        self.aggregate_models()
+        self.round_ongoing = True
+        parameters = self.start_round()
+
+        if parameters is None:
+            print("Error")
+        else:
+            weights = parameters_to_ndarrays(parameters)
+            self.set_parameters(weights)
+        self.round_ongoing = False
+        cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
+        # TODO: add host to save path
+        torch.save(
+            model.state_dict(),
+            f"save/sync/{workload}/{time_start}/{round_id:02d}-{cur_time}-local.pt",
+        )
+
+        # TODO: Save to IPFS
+        # cid = asyncio.run(save_model_ipfs(model.state_dict(), ipfs_host))
+        # logger.info(f"Model saved to IPFS with CID: {cid}")
+        # sync_contract.functions.submitModel(cid).transact()
+        # logger.info(f"Model submitted to contarct")
+
+
+# Define strategy
+strategy = fl.server.strategy.FedAvg(
+    min_fit_clients=1,
+    min_available_clients=1,
+    min_evaluate_clients=1,
+)
+
+
+if __name__ == "__main__":
+    SyncServer(server_address="localhost:5000", strategy=strategy)

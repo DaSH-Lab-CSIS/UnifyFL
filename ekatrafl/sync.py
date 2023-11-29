@@ -1,5 +1,7 @@
 """Sync EkatraFl servevr implementation."""
 from collections import OrderedDict
+import json
+from operator import itemgetter
 from time import time
 from typing import Dict, Optional, Tuple, List
 from flwr.common import parameters_to_ndarrays
@@ -28,14 +30,32 @@ logging.basicConfig(
     format="%(levelname)s:     %(message)s - %(asctime)s",
 )
 logger = logging.getLogger(__name__)
-# TODO: Read config
 
-workload = "cifar10"
-geth_endpoint = "http://localhost:8545"
-account = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
-registration_contract_address = "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
-sync_contract_address = "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2"
-ipfs_host = "http://localhost:5001"
+with open(sys.argv[1]) as f:
+    config = json.load(f)
+    (
+        workload,
+        geth_endpoint,
+        geth_account,
+        registration_contract_address,
+        sync_contract_address,
+        flwr_min_fit_clients,
+        flwr_min_available_clients,
+        flwr_min_evaluate_clients,
+        flwr_server_address,
+    ) = itemgetter(
+        "workload",
+        "geth_endpoint",
+        "geth_account",
+        "registration_contract_address",
+        "sync_contract_address",
+        "flwr_min_fit_clients",
+        "flwr_min_available_clients",
+        "flwr_min_evaluate_clients",
+        "flwr_server_address",
+    )(
+        config
+    )
 
 
 model = models[workload]()
@@ -54,7 +74,7 @@ def set_weights(model, parameters):
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-w3.eth.default_account = account
+w3.eth.default_account = geth_account
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
 # TODO: Add registration
@@ -176,11 +196,11 @@ class SyncServer(Server):
 
 # Define strategy
 strategy = fl.server.strategy.FedAvg(
-    min_fit_clients=1,
-    min_available_clients=1,
-    min_evaluate_clients=1,
+    min_fit_clients=flwr_min_fit_clients,
+    min_available_clients=flwr_min_available_clients,
+    min_evaluate_clients=flwr_min_evaluate_clients,
 )
 
 
 if __name__ == "__main__":
-    SyncServer(server_address="localhost:5000", strategy=strategy)
+    SyncServer(server_address=flwr_server_address, strategy=strategy)

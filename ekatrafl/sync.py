@@ -3,9 +3,7 @@ from collections import OrderedDict
 import json
 from operator import itemgetter
 from time import time
-from typing import Dict, Optional, Tuple, List
 from flwr.common import parameters_to_ndarrays
-from flwr.common.typing import Parameters, Scalar, Metrics
 
 from datetime import datetime
 import logging
@@ -22,7 +20,7 @@ import flwr as fl
 from base.model import models
 import torch
 import os
-from flower.strategy import aggregate
+from flwr.strategy import aggregate
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -43,6 +41,7 @@ with open(sys.argv[1]) as f:
         flwr_min_available_clients,
         flwr_min_evaluate_clients,
         flwr_server_address,
+        ipfs_host,
     ) = itemgetter(
         "workload",
         "geth_endpoint",
@@ -53,6 +52,7 @@ with open(sys.argv[1]) as f:
         "flwr_min_available_clients",
         "flwr_min_evaluate_clients",
         "flwr_server_address",
+        "ipfs_host",
     )(
         config
     )

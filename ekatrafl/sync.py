@@ -8,6 +8,7 @@ from flwr.common.typing import Parameters, Scalar, Metrics
 from datetime import datetime
 import logging
 import sys
+import asyncio
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
@@ -19,6 +20,7 @@ import flwr as fl
 from base.model import models
 import torch
 import os
+from flower.strategy import aggregate
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -33,6 +35,7 @@ geth_endpoint = "http://localhost:8545"
 account = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
 registration_contract_address = "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
 sync_contract_address = "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2"
+ipfs_host = "http://localhost:5001"
 
 
 model = models[workload]()
@@ -127,14 +130,18 @@ class SyncServer(Server):
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")
 
-            # TODO: Load from IPFS
-            # model.load_state_dict(
-            #     strategy(
-            #         await asyncio.gather(
-            #             *[load_model_ipfs(cid, ipfs_host) for cid in selected_models]
-            #         )
-            #     )
-            # )
+            model.load_state_dict(
+                aggregate(
+                    asyncio.run(
+                        asyncio.gather(
+                            *[
+                                load_model_ipfs(cid, ipfs_host)
+                                for cid in selected_models
+                            ]
+                        )
+                    )
+                )
+            )
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
             # TODO: add host to save path
@@ -161,11 +168,10 @@ class SyncServer(Server):
             f"save/sync/{workload}/{time_start}/{round_id:02d}-{cur_time}-local.pt",
         )
 
-        # TODO: Save to IPFS
-        # cid = asyncio.run(save_model_ipfs(model.state_dict(), ipfs_host))
-        # logger.info(f"Model saved to IPFS with CID: {cid}")
-        # sync_contract.functions.submitModel(cid).transact()
-        # logger.info(f"Model submitted to contarct")
+        cid = asyncio.run(save_model_ipfs(model.state_dict(), ipfs_host))
+        logger.info(f"Model saved to IPFS with CID: {cid}")
+        sync_contract.functions.submitModel(cid).transact()
+        logger.info(f"Model submitted to contarct")
 
 
 # Define strategy

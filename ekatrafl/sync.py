@@ -1,4 +1,4 @@
-"""Sync EkatraFl servevr implementation."""
+"""Sync EkatraFl server implementation."""
 from collections import OrderedDict
 import json
 from operator import itemgetter

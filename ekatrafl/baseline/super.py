@@ -3,11 +3,41 @@ from collections import OrderedDict
 
 import flwr as fl
 import torch
-from base.model import models
+from ekatrafl.base.model import models
 
-# TODO: Read config
+import logging
+from operator import itemgetter
+import sys
+import json
 
-workload = "cifar10"
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(levelname)s:     %(message)s - %(asctime)s",
+)
+# TODO: Add logs in agg and super
+logger = logging.getLogger(__name__)
+
+with open(sys.argv[1]) as f:
+    config = json.load(f)
+    (
+        workload,
+        num_rounds,
+        flwr_min_fit_clients,
+        flwr_min_available_clients,
+        flwr_min_evaluate_clients,
+        flwr_server_address,
+    ) = itemgetter(
+        "workload",
+        "num_rounds",
+        "flwr_min_fit_clients",
+        "flwr_min_available_clients",
+        "flwr_min_evaluate_clients",
+        "flwr_server_address",
+    )(
+        config
+    )
 
 
 model = models[workload]()
@@ -50,17 +80,21 @@ def set_weights(model, parameters):
 
 # Define strategy
 strategy = fl.server.strategy.FedAvg(
-    # evaluate_metrics_aggregation_fn=weighted_average,
-    min_fit_clients=1,
-    min_available_clients=1,
-    min_evaluate_clients=1,
+    min_fit_clients=flwr_min_fit_clients,
+    min_available_clients=flwr_min_available_clients,
+    min_evaluate_clients=flwr_min_evaluate_clients,
 )
 
 
-if __name__ == "__main__":
+def main():
     fl.server.start_server(
-        server_address="0.0.0.0:8080",
-        config=fl.server.ServerConfig(num_rounds=2),
+        server_address=flwr_server_address,
+        config=fl.server.ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
     )
+
+
 # Start Flower server
+
+if __name__ == "__main__":
+    main()

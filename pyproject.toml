@@ -8,8 +8,26 @@ version = "0.1.0"
 description = ""
 authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa.bits-pilani.ac.in>"]
 
+
+[tool.poetry.scripts]
+party = "ekatrafl.base.client:main"
+sync-agg = "ekatrafl.sync:main"
+base-sup="ekatrafl.baseline.super:main"
+base-agg="ekatrafl.baseline.agg:main"
+
+
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = "^3.10"
 flwr = ">=1.0,<2.0"
 torch = "1.13.1"
 torchvision = "0.14.1"
+aioipfs = "^0.6.3"
+web3 = "^6.4.0"
+tqdm = "^4.66.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+# psrecord = { git = "https://github.com/Ceres445/psrecord", branch = "master" }
+matplotlib = "^3.8.2"
+web3 = { extras = ["tester"], version = "^6.4.0" }

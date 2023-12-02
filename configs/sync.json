@@ -8,5 +8,5 @@
   "flwr_min_available_clients": 1,
   "flwr_min_evaluate_clients": 1,
   "flwr_server_address": "localhost:8080",
-  "ipfs_host": "http://localhost:5001",
+  "ipfs_host": "http://localhost:5001"
 }

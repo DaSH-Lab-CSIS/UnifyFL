@@ -1,12 +1,11 @@
 import warnings
 from collections import OrderedDict
 
-import flwr as fl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR10, cifar
+from torchvision.datasets import CIFAR10
 from torchvision.transforms import Compose, Normalize, ToTensor
 from tqdm import tqdm
 
@@ -39,7 +38,7 @@ class CIFAR10Model(nn.Module):
         x = F.relu(self.fc2(x))
         return self.fc3(x)
 
-    def train(self, trainloader, epochs):
+    def train_model(self, trainloader, epochs):
         """Train the model on the training set."""
         criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
@@ -49,8 +48,9 @@ class CIFAR10Model(nn.Module):
                 optimizer.zero_grad()
                 criterion(self(images.to(DEVICE)), labels.to(DEVICE)).backward()
                 optimizer.step()
+        print("Done")
 
-    def test(self, testloader):
+    def test_model(self, testloader):
         """Validate the model on the test set."""
         criterion = torch.nn.CrossEntropyLoss()
         correct, loss = 0, 0.0
@@ -83,9 +83,9 @@ def main():
     net = CIFAR10Model().to(DEVICE)
     net.eval()
     print("Start training")
-    net.train(trainloader=trainloader, epochs=2)
+    net.train_model(trainloader=trainloader, epochs=2)
     print("Evaluate model")
-    loss, accuracy = net.test(testloader=testloader)
+    loss, accuracy = net.test_model(testloader=testloader)
     print("Loss: ", loss)
     print("Accuracy: ", accuracy)
 

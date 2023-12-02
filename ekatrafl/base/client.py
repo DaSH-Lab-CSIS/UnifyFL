@@ -3,7 +3,7 @@ from collections import OrderedDict
 import flwr as fl
 import torch
 
-from base.model import models
+from ekatrafl.base.model import models
 
 
 # #############################################################################
@@ -12,8 +12,40 @@ from base.model import models
 
 # Load model and data (simple CNN, CIFAR-10)
 
-# TODO Load config
-workload = "cifar10"
+
+import logging
+from operator import itemgetter
+import sys
+import json
+
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(levelname)s:     %(message)s - %(asctime)s",
+)
+# TODO: Add logs in agg and super
+logger = logging.getLogger(__name__)
+
+with open(sys.argv[1]) as f:
+    config = json.load(f)
+    (
+        workload,
+        num_rounds,
+        flwr_min_fit_clients,
+        flwr_min_available_clients,
+        flwr_min_evaluate_clients,
+        flwr_server_address,
+    ) = itemgetter(
+        "workload",
+        "num_rounds",
+        "flwr_min_fit_clients",
+        "flwr_min_available_clients",
+        "flwr_min_evaluate_clients",
+        "flwr_server_address",
+    )(
+        config
+    )
 
 
 model = models[workload]
@@ -38,18 +70,18 @@ class FlowerClient(fl.client.NumPyClient):
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-        self.model.train(self.trainloader, epochs=1)
+        self.model.train_model(self.trainloader, epochs=1)
         return self.get_parameters(config={}), len(self.trainloader.dataset), {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        loss, accuracy = self.model.test(self.testloader)
+        loss, accuracy = self.model.test_model(self.testloader)
         return loss, len(self.testloader.dataset), {"accuracy": accuracy}
 
 
 def main():
     fl.client.start_numpy_client(
-        server_address="0.0.0.0:5000",
+        server_address=flwr_server_address,
         client=FlowerClient(),
     )
 

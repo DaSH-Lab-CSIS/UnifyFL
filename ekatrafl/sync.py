@@ -12,15 +12,15 @@ import asyncio
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
-from base.contract import create_reg_contract, create_sync_contract
-from base.custom_server import Server
+from ekatrafl.base.contract import create_reg_contract, create_sync_contract
+from ekatrafl.base.custom_server import Server
 
-from base.ipfs import load_model_ipfs, save_model_ipfs
+from ekatrafl.base.ipfs import load_model_ipfs, save_model_ipfs
 import flwr as fl
-from base.model import models
+from flwr.server.strategy import aggregate
+from ekatrafl.base.model import models
 import torch
 import os
-from flwr.strategy import aggregate
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -202,5 +202,10 @@ strategy = fl.server.strategy.FedAvg(
 )
 
 
-if __name__ == "__main__":
+def main():
+    """Start server and train model."""
     SyncServer(server_address=flwr_server_address, strategy=strategy)
+
+
+if __name__ == "__main__":
+    main()

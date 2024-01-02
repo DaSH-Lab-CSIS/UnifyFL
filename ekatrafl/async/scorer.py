@@ -1,0 +1,98 @@
+import asyncio
+import json
+import logging
+import math
+import sys
+import time
+from operator import itemgetter
+import torch
+
+from torch.utils.data import DataLoader, Subset
+from web3 import Web3
+
+# from web3.middleware import geth_poa_middleware
+from ekatrafl.base.contract import create_async_contract, create_reg_contract
+
+from ekatrafl.base.ipfs import load_model_ipfs
+from ekatrafl.base.model import accuracy_scorer, models, scorers
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(levelname)s:     %(message)s - %(asctime)s",
+)
+logger = logging.getLogger(__name__)
+
+with open(sys.argv[1]) as f:
+    config = json.load(f)
+    (
+        workload,
+        scoring,
+        geth_endpoint,
+        registration_contract_address,
+        async_contract_address,
+        ipfs_host,
+        account,
+    ) = itemgetter(
+        "workload",
+        "scorer",
+        "geth_endpoint",
+        "registration_contract_address",
+        "contract_address",
+        "ipfs_host",
+        "geth_account",
+    )(
+        config
+    )
+
+model = models[workload]
+scorer = scorers[scoring]
+
+logger.info(f"Model: {model.__name__}")
+logger.info(f"Scorer: {scorer.__name__}")
+
+w3 = Web3(Web3.HTTPProvider(geth_endpoint))
+# w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+w3.eth.default_account = account
+
+testset = model.get_testset()
+testloader = DataLoader(
+    Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
+    batch_size=64,
+)
+
+registration_contract = create_reg_contract(w3, registration_contract_address)
+async_contract = create_async_contract(w3, async_contract_address)
+
+
+async def score_model(trainer: str, cid: str):
+    model = models[workload]()
+    logger.info(f"Model recevied to score with CID: {cid}")
+    model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
+    logger.info(f"Model pull from IPFS")
+    accuracy = accuracy_scorer(model, testloader)
+    logger.info(f"Accuracy: {(accuracy):>0.1f}%")
+    async_contract.functions.scoreModel(trainer, cid, int(accuracy)).transact()
+    logger.info(f"Model scores submitted to contract")
+
+
+def main():
+    registration_contract.functions.registerDevice("scorer").transact()
+    events = set()
+    last_seen_block = w3.eth.block_number
+    while True:
+        for event in async_contract.events.ModelScorers().get_logs(
+            fromBlock=last_seen_block
+        ):
+            if event not in events:
+                events.add(event)
+                last_seen_block = event["blockNumber"]
+                if w3.eth.default_account in event["args"]["scorers"]:
+                    asyncio.run(
+                        score_model(event["args"]["submitter"], event["args"]["model"])
+                    )
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()

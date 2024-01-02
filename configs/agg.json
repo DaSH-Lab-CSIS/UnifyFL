@@ -4,5 +4,6 @@
   "flwr_min_fit_clients": 1,
   "flwr_min_available_clients": 1,
   "flwr_min_evaluate_clients": 1,
-  "flwr_server_address": "localhost:8080",
+  "flwr_super_address": "localhost:8080",
+  "flwr_sub_address": "localhost:5000"
 }

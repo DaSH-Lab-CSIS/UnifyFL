@@ -1,0 +1,5 @@
+
+{
+  "workload": "cifar10",
+  "flwr_server_address": "localhost:5000"
+}

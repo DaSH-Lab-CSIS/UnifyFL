@@ -1,9 +1,7 @@
-"""Sync EkatraFl server implementation."""
+"""Async EkatraFl server implementation."""
 from collections import OrderedDict
 import json
 from operator import itemgetter
-import threading
-from time import time
 from flwr.common import parameters_to_ndarrays
 
 from datetime import datetime
@@ -12,13 +10,14 @@ import sys
 import asyncio
 
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
-from ekatrafl.base.contract import create_reg_contract, create_sync_contract
+
+# from web3.middleware import geth_poa_middleware
+from ekatrafl.base.contract import create_reg_contract, create_async_contract
 from ekatrafl.base.custom_server import Server
 
 from ekatrafl.base.ipfs import load_model_ipfs, save_model_ipfs
 import flwr as fl
-from flwr.server.strategy import aggregate
+from flwr.server.strategy.aggregate import aggregate
 from ekatrafl.base.model import models
 import torch
 import os
@@ -37,7 +36,7 @@ with open(sys.argv[1]) as f:
         geth_endpoint,
         geth_account,
         registration_contract_address,
-        sync_contract_address,
+        async_contract_address,
         flwr_min_fit_clients,
         flwr_min_available_clients,
         flwr_min_evaluate_clients,
@@ -61,22 +60,32 @@ with open(sys.argv[1]) as f:
 
 model = models[workload]
 
-trainloader, testloader = model.load_data()
 
 # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
+def set_weights(model, parameters):
+    keys = [k for k in model.state_dict().keys() if "bn" not in k]
+    params_dict = zip(keys, parameters)
+    state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+    model.load_state_dict(state_dict, strict=False)
+
+
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+# Add this line when changing from anvil to geth chain
+# w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = geth_account
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
 # TODO: Add registration
-sync_contract = create_sync_contract(w3, sync_contract_address)
+async_contract = create_async_contract(w3, async_contract_address)
 
 
 time_start = str(datetime.now().strftime("%d-%H-%M-%S"))
 os.makedirs(f"save/sync/{workload}/{time_start}", exist_ok=True)
+
+loop = asyncio.get_event_loop()
 
 
 # def evaluate(
@@ -91,8 +100,8 @@ os.makedirs(f"save/sync/{workload}/{time_start}", exist_ok=True)
 #     return loss, {"accuracy": accuracy}
 
 
-class SyncServer(Server):
-    """Sync server implementation.
+class AsyncServer(Server):
+    """Async server implementation.
     Warning: Server is a subclass of fl.server.Server, setting properties that
     are common to fl.server.Server might lead to unexpected behaviour.
     """
@@ -100,9 +109,11 @@ class SyncServer(Server):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.round_ongoing = False
+        self.round_id = 0
         self.model = model()
         registration_contract.functions.registerDevice("trainer").transact()
-        threading.Thread(target=self.run_rounds).start()
+        # threading.Thread(target=self.run_rounds).start()
+        self.single_round()
 
     def set_parameters(self, parameters):
         print("set param", type(parameters))
@@ -110,26 +121,20 @@ class SyncServer(Server):
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
 
-    def run_rounds(self):
-        events = set()
-        last_seen_block = w3.eth.block_number
-        # TODO: remove threading and integrate into single_round
-        while True:
-            for event in sync_contract.events.StartTraining().get_logs(
-                fromBlock=last_seen_block
-            ):
-                if event not in events:
-                    events.add(event)
-                    last_seen_block = event["blockNumber"]
-                    if not self.round_ongoing:
-                        self.round_id = event["args"]["round"]
-                        self.single_round()
-            time.sleep(1)
+    # run_rounds not needed as we can just start another round after previous round ends
+    # def run_rounds(self):
+    #     # Rounds in async start automatically after the previous round ends
+    #     time.sleep(60)
+    #     while True:
+    #         logger.info(f"Round {self.round_id} started")
+    #         self.single_round()
+    #         logger.info(f"Round {self.round_id-1} ended")
+    #         time.sleep(60)
 
     def aggregate_models(self):
         global_models = filter(
             lambda x: x[0] != "",
-            zip(*sync_contract.functions.getLatestModelsWithScores().call()),
+            zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
         selected_models = list(
             map(
@@ -146,9 +151,14 @@ class SyncServer(Server):
             logger.info(f"Aggregating models {selected_models}")
 
             self.model.load_state_dict(
-                aggregate.aggregate(
-                    asyncio.gather(
-                        *[load_model_ipfs(cid, ipfs_host) for cid in selected_models]
+                aggregate(
+                    loop.run_until_complete(
+                        asyncio.gather(
+                            *[
+                                load_model_ipfs(cid, ipfs_host)
+                                for cid in selected_models
+                            ]
+                        )
                     )
                 )
             )
@@ -163,6 +173,8 @@ class SyncServer(Server):
     def single_round(self):
         self.aggregate_models()
         self.round_ongoing = True
+        self.round_id += 1
+        logger.info(f"Round {self.round_id} started")
         parameters = self.start_round()
 
         if parameters is None:
@@ -180,8 +192,11 @@ class SyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(self.model.state_dict(), ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
-        sync_contract.functions.submitModel(cid).transact()
+        async_contract.functions.submitModel(cid).transact()
         logger.info("Model submitted to contarct")
+        logger.info(f"Round {self.round_id} ended")
+        # TODO: add timer here
+        self.single_round()
 
 
 # Define strategy
@@ -194,7 +209,7 @@ strategy = fl.server.strategy.FedAvg(
 
 def main():
     """Start server and train model."""
-    SyncServer(server_address=flwr_server_address, strategy=strategy)
+    AsyncServer(server_address=flwr_server_address, strategy=strategy)
 
 
 if __name__ == "__main__":

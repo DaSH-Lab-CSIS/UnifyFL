@@ -15,7 +15,8 @@ from tqdm import tqdm
 # #############################################################################
 
 warnings.filterwarnings("ignore", category=UserWarning)
-DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+DEVICE = "cpu"
 
 
 class CIFAR10Model(nn.Module):
@@ -71,9 +72,17 @@ class CIFAR10Model(nn.Module):
         testset = CIFAR10("./data", train=False, download=True, transform=trf)
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 
+    @staticmethod
+    def get_testset():
+        """Load CIFAR-10 test set."""
+        trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        testset = CIFAR10("./data", train=False, download=True, transform=trf)
+        return testset
+
 
 def main():
-    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # DEVICE = "cpu"
     print("Centralized PyTorch training")
     print("Load data")
     (

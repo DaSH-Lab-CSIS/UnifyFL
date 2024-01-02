@@ -8,6 +8,8 @@ import sys
 import json
 
 
+from ekatrafl.base.model import models
+
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
@@ -22,13 +24,15 @@ with open(sys.argv[1]) as f:
         flwr_min_fit_clients,
         flwr_min_available_clients,
         flwr_min_evaluate_clients,
-        flwr_server_address,
+        flwr_super_address,
+        flwr_sub_address,
     ) = itemgetter(
         "workload",
         "flwr_min_fit_clients",
         "flwr_min_available_clients",
         "flwr_min_evaluate_clients",
-        "flwr_server_address",
+        "flwr_super_address",
+        "flwr_sub_address",
     )(
         config
     )
@@ -36,7 +40,7 @@ with open(sys.argv[1]) as f:
 
 class ClientServer(FlowerClient):
     def __init__(self, address: str = "0.0.0.0:5000") -> None:
-        super().__init__()
+        super().__init__(models[workload])
         strategy = fl.server.strategy.FedAvg(
             min_fit_clients=flwr_min_fit_clients,
             min_available_clients=flwr_min_available_clients,
@@ -59,7 +63,7 @@ class ClientServer(FlowerClient):
 
 def main():
     fl.client.start_numpy_client(
-        server_address=flwr_server_address, client=ClientServer()
+        server_address=flwr_super_address, client=ClientServer(flwr_sub_address)
     )
 
 

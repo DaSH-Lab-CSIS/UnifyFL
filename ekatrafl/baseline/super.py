@@ -44,7 +44,7 @@ model = models[workload]()
 
 trainloader, testloader = model.load_data()
 
-DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def set_weights(model, parameters):

@@ -13,47 +13,9 @@ from ekatrafl.base.model import models
 # Load model and data (simple CNN, CIFAR-10)
 
 
-import logging
-from operator import itemgetter
-import sys
-import json
-
-
-logging.basicConfig(
-    stream=sys.stdout,
-    level=logging.INFO,
-    format="%(levelname)s:     %(message)s - %(asctime)s",
-)
-# TODO: Add logs in agg and super
-logger = logging.getLogger(__name__)
-
-with open(sys.argv[1]) as f:
-    config = json.load(f)
-    (
-        workload,
-        num_rounds,
-        flwr_min_fit_clients,
-        flwr_min_available_clients,
-        flwr_min_evaluate_clients,
-        flwr_server_address,
-    ) = itemgetter(
-        "workload",
-        "num_rounds",
-        "flwr_min_fit_clients",
-        "flwr_min_available_clients",
-        "flwr_min_evaluate_clients",
-        "flwr_server_address",
-    )(
-        config
-    )
-
-
-model = models[workload]
-
-
 # Define Flower client
 class FlowerClient(fl.client.NumPyClient):
-    def __init__(self):
+    def __init__(self, model):
         self.model = model()
         self.trainloader, self.testloader = model.load_data()
         super().__init__()
@@ -80,9 +42,33 @@ class FlowerClient(fl.client.NumPyClient):
 
 
 def main():
+    import logging
+    from operator import itemgetter
+    import sys
+    import json
+
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.INFO,
+        format="%(levelname)s:     %(message)s - %(asctime)s",
+    )
+    # TODO: Add logs in agg and super
+    logger = logging.getLogger(__name__)
+
+    with open(sys.argv[1]) as f:
+        config = json.load(f)
+        (
+            workload,
+            flwr_server_address,
+        ) = itemgetter(
+            "workload",
+            "flwr_server_address",
+        )(config)
+
+    model = models[workload]
     fl.client.start_numpy_client(
         server_address=flwr_server_address,
-        client=FlowerClient(),
+        client=FlowerClient(model),
     )
 
 

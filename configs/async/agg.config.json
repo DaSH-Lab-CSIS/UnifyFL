@@ -1,0 +1,13 @@
+{
+    "workload": "cifar10",
+    "geth_endpoint": "http://localhost:8545",
+    "geth_account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "registration_contract_address": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
+    "contract_address": "0x59b670e9fA9D0A427751Af201D676719a970857b",
+    "flwr_min_fit_clients": 1,
+    "flwr_min_available_clients": 1,
+    "flwr_min_evaluate_clients": 1,
+    "flwr_server_address": "localhost:5000",
+    "ipfs_host": "/ip4/127.0.0.1/tcp/5001",
+    "scorer": "accuracy"
+}

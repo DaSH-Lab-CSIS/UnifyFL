@@ -5,6 +5,14 @@ import "./RandomNumbers.sol";
 import "./Registration.sol";
 
 contract SyncRound {
+    RandomNumbers randomNumbers;
+    Registration registration;
+
+    constructor(address _randomNumbers, address _registration) {
+        randomNumbers = RandomNumbers(_randomNumbers);
+        registration = Registration(_registration);
+    }
+
     enum RoundPhase {
         Idle,
         Training,
@@ -14,30 +22,19 @@ contract SyncRound {
     uint256 public round = 0;
     RoundPhase public currentPhase;
 
-    RandomNumbers randomNumbers;
-    Registration registration;
-
     event StartTraining(uint256 round);
     event StartScoring(uint256 round, address[] scorers, string[] models);
 
+    event ModelSubmitted(uint256 indexed round, address indexed trainer);
     event ScoreSubmitted(
-        uint256 round,
-        address scorer,
-        string model,
+        uint256 indexed round,
+        address indexed scorer,
+        string indexed model,
         uint256 score
     );
 
-    event ModelSubmitted(uint256 indexed round, address indexed trainer);
-
-    mapping(uint256 => mapping(address => mapping(string => uint256)))
-        public roundScores; // round -> scorer -> model -> score
-    mapping(uint256 => address[]) public roundToScorers; // round -> scorer nodes
-    mapping(uint256 => mapping(address => string)) public models; // round => trainer => model
-    mapping(uint256 => string[]) public roundToModels;
-    mapping(string => uint256[]) public modelToScores;
-
-    modifier validScorer() {
-        address[] memory scorers = registration.getScorers();
+    modifier validScorer(uint256 _round) {
+        address[] memory scorers = roundToScorers[_round];
         bool found = false;
         for (uint i = 0; i < scorers.length; i++) {
             if (scorers[i] == msg.sender) {
@@ -45,20 +42,42 @@ contract SyncRound {
                 break;
             }
         }
-        require(found, "Not a registered scorer");
+        require(found, "Not an assigned scorer.");
         _;
     }
 
-    constructor(address _randomNumbers, address _registration) {
-        randomNumbers = RandomNumbers(_randomNumbers);
-        registration = Registration(_registration);
+    modifier validTrainer() {
+        address[] memory trainers = registration.getTrainers();
+        bool found = false;
+        for (uint i = 0; i < trainers.length; i++) {
+            if (trainers[i] == msg.sender) {
+                found = true;
+                break;
+            }
+        }
+        require(found, "Not a registered trainer.");
+        _;
     }
+
+    mapping(uint256 => mapping(address => mapping(string => uint256)))
+        public roundToScorerToModelToScore;
+    mapping(uint256 => address[]) public roundToScorers;
+    mapping(uint256 => mapping(address => string)) public roundToTrainerToModel;
+    mapping(uint256 => string[]) public roundToModels;
+    mapping(string => uint256[]) public modelToScores;
 
     function startTraining() public {
         require(currentPhase != RoundPhase.Training, "Already training");
         currentPhase = RoundPhase.Training;
         round++;
         emit StartTraining(round);
+    }
+
+    function submitModel(string memory _model) external validTrainer {
+        require(currentPhase == RoundPhase.Training, "Only during training");
+        roundToTrainerToModel[round][msg.sender] = _model;
+        roundToModels[round].push(_model);
+        emit ModelSubmitted(round, msg.sender);
     }
 
     function startScoring() public {
@@ -75,22 +94,11 @@ contract SyncRound {
         uint256 _round,
         string memory _model,
         uint256 _score
-    ) external validScorer {
+    ) external validScorer(_round) {
         require(currentPhase == RoundPhase.Scoring, "Only during scoring");
-        require(
-            roundScores[_round][msg.sender][_model] != _score,
-            "Score already submitted"
-        );
-        roundScores[_round][msg.sender][_model] = _score;
+        roundToScorerToModelToScore[_round][msg.sender][_model] = _score;
         modelToScores[_model].push(_score);
         emit ScoreSubmitted(round, msg.sender, _model, _score);
-    }
-
-    function submitModel(string memory _model) external {
-        require(currentPhase == RoundPhase.Training, "Only during training");
-        models[round][msg.sender] = _model;
-        roundToModels[round].push(_model);
-        emit ModelSubmitted(round, msg.sender);
     }
 
     function getModelsWithScores(

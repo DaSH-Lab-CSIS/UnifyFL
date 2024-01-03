@@ -1,4 +1,4 @@
-# PyTorch: From Centralized To Federated
+# EkatraFL
 
 This example demonstrates how an already existing centralized PyTorch-based machine learning project can be federated with Flower.
 

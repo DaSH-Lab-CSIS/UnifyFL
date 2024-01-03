@@ -3,14 +3,13 @@ import subprocess, sys
 
 # mode is 1 for sync, 2 for async
 mode = sys.argv[1]
-import os
 
 RPC_URL = "127.0.0.1:8545"
 PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-os.chdir("blockchain")
-c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} src/Registration.sol:Registration"
+# os.chdir("contracts")
+c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"
 command1 = c1.split()
-c2 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY}  src/RandomNumbers.sol:RandomNumbers"
+c2 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY}  contracts/RandomNumbers.sol:RandomNumbers"
 command2 = c2.split()
 
 print(c1)
@@ -26,7 +25,7 @@ output2 = subprocess.Popen(command2, stdout=subprocess.PIPE).communicate()[-2]
 random_numbers = output2.decode().split("\n")[-3].split()[-1]
 
 c3 = (
-    f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} src/AsyncRound.sol:AsyncRound"
+    f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/AsyncRound.sol:AsyncRound"
     + " --constructor-args "
     + registration
     + " "
@@ -35,7 +34,7 @@ c3 = (
 output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[-2]
 sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
-os.chdir("..")
+# os.chdir("..")
 com2 = f"python3 scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])

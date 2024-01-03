@@ -12,7 +12,7 @@ def create_reg_contract(w3: Web3, address: str) -> Contract:
                 str(
                     os.path.join(
                         os.path.dirname(__file__),
-                        "../../blockchain/abi/Registration.json",
+                        "../../contracts/abi/Registration.json",
                     )
                 )
             )
@@ -28,7 +28,7 @@ def create_async_contract(w3: Web3, address: str) -> Contract:
                 str(
                     os.path.join(
                         os.path.dirname(__file__),
-                        "../../blockchain/abi/AsyncRound.json",
+                        "../../contracts/abi/AsyncRound.json",
                     )
                 )
             )
@@ -44,7 +44,7 @@ def create_sync_contract(w3: Web3, address: str) -> Contract:
                 str(
                     os.path.join(
                         os.path.dirname(__file__),
-                        "../../blockchain/abi/SyncRound.json",
+                        "../../contracts/abi/SyncRound.json",
                     )
                 )
             )

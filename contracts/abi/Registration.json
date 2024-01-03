@@ -5,74 +5,18 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "device",
+        "name": "node",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "string",
-        "name": "deviceType",
+        "name": "nodeType",
         "type": "string"
       }
     ],
-    "name": "DeviceRegistered",
+    "name": "NodeRegistered",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "aggregators",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "deviceType",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAggregators",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -103,12 +47,36 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "nodes",
+    "outputs": [
+      {
         "internalType": "string",
-        "name": "_deviceType",
+        "name": "",
         "type": "string"
       }
     ],
-    "name": "registerDevice",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "nodeType",
+        "type": "string"
+      }
+    ],
+    "name": "registerNode",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

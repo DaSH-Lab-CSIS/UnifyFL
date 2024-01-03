@@ -19,10 +19,10 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "round",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "string",
+        "name": "model",
+        "type": "string"
       },
       {
         "indexed": true,
@@ -39,21 +39,15 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "round",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "scorer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "string",
         "name": "model",
         "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "scorer",
+        "type": "address"
       },
       {
         "indexed": false,
@@ -70,51 +64,25 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "round",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "model",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trainer",
+        "type": "address"
       },
       {
         "indexed": false,
         "internalType": "address[]",
         "name": "scorers",
         "type": "address[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "string[]",
-        "name": "models",
-        "type": "string[]"
       }
     ],
     "name": "StartScoring",
     "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "round",
-        "type": "uint256"
-      }
-    ],
-    "name": "StartTraining",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "currentPhase",
-    "outputs": [
-      {
-        "internalType": "enum SyncRound.RoundPhase",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -137,22 +105,22 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
         "internalType": "uint256",
-        "name": "_round",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "getModelsWithScores",
+    "name": "modelToScorers",
     "outputs": [
       {
-        "internalType": "string[]",
+        "internalType": "address",
         "name": "",
-        "type": "string[]"
-      },
-      {
-        "internalType": "uint256[][]",
-        "name": "",
-        "type": "uint256[][]"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -185,134 +153,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "models",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "round",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "name": "roundScores",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "roundToModels",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "roundToScorers",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "startScoring",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "startTraining",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "string",
         "name": "_model",
         "type": "string"
@@ -326,24 +166,43 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_round",
-        "type": "uint256"
-      },
-      {
         "internalType": "string",
         "name": "_model",
         "type": "string"
       },
       {
         "internalType": "uint256",
-        "name": "_score",
+        "name": "score",
         "type": "uint256"
       }
     ],
     "name": "submitScore",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "trainerToModels",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

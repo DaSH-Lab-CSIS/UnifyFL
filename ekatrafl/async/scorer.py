@@ -72,7 +72,7 @@ async def score_model(trainer: str, cid: str):
     logger.info(f"Model pull from IPFS")
     accuracy = accuracy_scorer(model, testloader)
     logger.info(f"Accuracy: {(accuracy):>0.1f}%")
-    async_contract.functions.scoreModel(trainer, cid, int(accuracy)).transact()
+    async_contract.functions.submitScore(trainer, cid, int(accuracy)).transact()
     logger.info(f"Model scores submitted to contract")
 
 
@@ -81,7 +81,7 @@ def main():
     events = set()
     last_seen_block = w3.eth.block_number
     while True:
-        for event in async_contract.events.ModelScorers().get_logs(
+        for event in async_contract.events.StartScoring().get_logs(
             fromBlock=last_seen_block
         ):
             if event not in events:

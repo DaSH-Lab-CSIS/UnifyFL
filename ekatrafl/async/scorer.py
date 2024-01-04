@@ -77,7 +77,7 @@ async def score_model(trainer: str, cid: str):
 
 
 def main():
-    registration_contract.functions.registerDevice("scorer").transact()
+    registration_contract.functions.registerNode("scorer").transact()
     events = set()
     last_seen_block = w3.eth.block_number
     while True:

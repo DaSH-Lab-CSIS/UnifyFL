@@ -101,7 +101,7 @@ class SyncServer(Server):
         super().__init__(*args, **kwargs)
         self.round_ongoing = False
         self.model = model()
-        registration_contract.functions.registerDevice("trainer").transact()
+        registration_contract.functions.registerNode("trainer").transact()
         threading.Thread(target=self.run_rounds).start()
 
     def set_parameters(self, parameters):

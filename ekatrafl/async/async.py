@@ -111,7 +111,7 @@ class AsyncServer(Server):
         self.round_ongoing = False
         self.round_id = 0
         self.model = model()
-        registration_contract.functions.registerDevice("trainer").transact()
+        registration_contract.functions.registerNode("trainer").transact()
         # threading.Thread(target=self.run_rounds).start()
         self.single_round()
 

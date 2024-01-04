@@ -48,8 +48,8 @@ contract AsyncRound {
     }
 
     mapping(address => string[]) public trainerToModels;
-    mapping(string => address[]) public modelToScorers;
-    mapping(string => uint256[]) public modelToScores;
+    mapping(string => address[]) internal modelToScorers;
+    mapping(string => uint256[]) internal modelToScores;
 
     // mapping(address => mapping(uint256 => uint256[]))
     //     public trainerToModelIndexToScores;

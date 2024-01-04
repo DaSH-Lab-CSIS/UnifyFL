@@ -64,7 +64,7 @@ contract SyncRound {
     mapping(uint256 => address[]) public roundToScorers;
     mapping(uint256 => mapping(address => string)) public roundToTrainerToModel;
     mapping(uint256 => string[]) public roundToModels;
-    mapping(string => uint256[]) public modelToScores;
+    mapping(string => uint256[]) internal modelToScores;
 
     function startTraining() public {
         require(currentPhase != RoundPhase.Training, "Already training");

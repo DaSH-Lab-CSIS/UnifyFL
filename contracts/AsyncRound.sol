@@ -51,11 +51,6 @@ contract AsyncRound {
     mapping(string => address[]) internal modelToScorers;
     mapping(string => uint256[]) internal modelToScores;
 
-    // mapping(address => mapping(uint256 => uint256[]))
-    //     public trainerToModelIndexToScores;
-    // mapping(address => mapping(uint256 => address[]))
-    //     public trainerToModelIndexToScorers;
-
     function submitModel(string memory _model) public validTrainer {
         trainerToModels[msg.sender].push(_model);
         emit ModelSubmitted(_model, msg.sender);

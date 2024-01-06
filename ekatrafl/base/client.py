@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 import flwr as fl
 import torch
+import wandb
 
 from ekatrafl.base.model import models
 
@@ -11,6 +12,10 @@ from ekatrafl.base.model import models
 # #############################################################################
 
 # Load model and data (simple CNN, CIFAR-10)
+
+
+# Login to wandb
+wandb.login()
 
 
 # Define Flower client
@@ -38,6 +43,7 @@ class FlowerClient(fl.client.NumPyClient):
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         loss, accuracy = self.model.test_model(self.testloader)
+        wandb.log({"accuracy": accuracy, "loss": loss})
         return loss, len(self.testloader.dataset), {"accuracy": accuracy}
 
 
@@ -69,6 +75,11 @@ def main():
     fl.client.start_numpy_client(
         server_address=flwr_server_address,
         client=FlowerClient(model),
+    )
+    
+    wandb.init(
+        project="ekatrafl",
+        config = json.load(f)
     )
 
 

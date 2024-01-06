@@ -6,6 +6,10 @@ from ekatrafl.base.client import FlowerClient
 import flwr as fl
 import sys
 import json
+import wandb
+
+# Login to wandb
+wandb.login()
 
 
 from ekatrafl.base.model import models
@@ -65,7 +69,11 @@ def main():
     fl.client.start_numpy_client(
         server_address=flwr_super_address, client=ClientServer(flwr_sub_address)
     )
-
+    
+    wandb.init(
+        project="ekatrafl",
+        config = json.load(f)
+    )
 
 if __name__ == "__main__":
     main()

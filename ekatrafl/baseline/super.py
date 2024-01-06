@@ -9,6 +9,10 @@ import logging
 from operator import itemgetter
 import sys
 import json
+import wandb
+
+# Login to wandb
+wandb.login()
 
 
 logging.basicConfig(
@@ -91,6 +95,11 @@ def main():
         server_address=flwr_server_address,
         config=fl.server.ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
+    )
+
+    wandb.init(
+        project="ekatrafl",
+        config = json.load(f)
     )
 
 

@@ -81,7 +81,7 @@ class Server(fl.server.Server):
                 res[0],
                 res[1],
             )
-        print("server param", type(self.server.parameters))
+        # print("server param", type(self.server.parameters))
 
     def stop(self):
         # Stop the gRPC server

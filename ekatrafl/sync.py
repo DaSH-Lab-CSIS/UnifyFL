@@ -4,7 +4,7 @@ import json
 from operator import itemgetter
 import threading
 from time import time
-from flwr.common import parameters_to_ndarrays
+from flwr.common import NDArray, parameters_to_ndarrays
 
 from datetime import datetime
 import logging
@@ -104,8 +104,7 @@ class SyncServer(Server):
         registration_contract.functions.registerNode("trainer").transact()
         threading.Thread(target=self.run_rounds).start()
 
-    def set_parameters(self, parameters):
-        print("set param", type(parameters))
+    def set_parameters(self, parameters: NDArray):
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
@@ -167,6 +166,7 @@ class SyncServer(Server):
 
         if parameters is None:
             print("Error")
+            return
         else:
             weights = parameters_to_ndarrays(parameters)
             self.set_parameters(weights)
@@ -178,7 +178,7 @@ class SyncServer(Server):
             f"save/sync/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
-        cid = asyncio.run(save_model_ipfs(self.model.state_dict(), ipfs_host))
+        cid = asyncio.run(save_model_ipfs(weights, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
         sync_contract.functions.submitModel(cid).transact()
         logger.info("Model submitted to contarct")

@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 import flwr as fl
+from flwr.common.typing import NDArray
 import torch
 import wandb
 
@@ -29,8 +30,7 @@ class FlowerClient(fl.client.NumPyClient):
         print("get param")
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
-    def set_parameters(self, parameters):
-        print("set param", type(parameters))
+    def set_parameters(self, parameters: NDArray):
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
@@ -76,11 +76,8 @@ def main():
         server_address=flwr_server_address,
         client=FlowerClient(model),
     )
-    
-    wandb.init(
-        project="ekatrafl",
-        config = json.load(f)
-    )
+
+    wandb.init(project="ekatrafl", config=json.load(f))
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import math
 import sys
 import time
 from operator import itemgetter
+from flwr.common import parameters_to_ndarrays
 import torch
 
 from torch.utils.data import DataLoader, Subset
@@ -14,7 +15,7 @@ from web3 import Web3
 from ekatrafl.base.contract import create_async_contract, create_reg_contract
 
 from ekatrafl.base.ipfs import load_model_ipfs
-from ekatrafl.base.model import accuracy_scorer, models, scorers
+from ekatrafl.base.model import accuracy_scorer, models, scorers, set_parameters
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -68,11 +69,14 @@ async_contract = create_async_contract(w3, async_contract_address)
 async def score_model(trainer: str, cid: str):
     model = models[workload]()
     logger.info(f"Model recevied to score with CID: {cid}")
-    model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
+    # model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
+    parameters = await load_model_ipfs(cid, ipfs_host)
+    weights = parameters_to_ndarrays(parameters)
+    set_parameters(model, weights)
     logger.info(f"Model pull from IPFS")
     accuracy = accuracy_scorer(model, testloader)
     logger.info(f"Accuracy: {(accuracy):>0.1f}%")
-    async_contract.functions.submitScore(trainer, cid, int(accuracy)).transact()
+    async_contract.functions.submitScore(cid, int(accuracy)).transact()
     logger.info(f"Model scores submitted to contract")
 
 
@@ -88,8 +92,9 @@ def main():
                 events.add(event)
                 last_seen_block = event["blockNumber"]
                 if w3.eth.default_account in event["args"]["scorers"]:
+                    print(event["args"])
                     asyncio.run(
-                        score_model(event["args"]["submitter"], event["args"]["model"])
+                        score_model(event["args"]["trainer"], event["args"]["model"])
                     )
         time.sleep(1)
 

@@ -27,9 +27,9 @@ random_numbers = output2.decode().split("\n")[-3].split()[-1]
 c3 = (
     f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/AsyncRound.sol:AsyncRound"
     + " --constructor-args "
-    + registration
-    + " "
     + random_numbers
+    + " "
+    + registration
 )
 output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[-2]
 sync = output3.decode().split("\n")[-3].split()[-1]

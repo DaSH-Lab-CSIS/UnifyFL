@@ -13,7 +13,7 @@ models = {"cifar10": CIFAR10Model}
 
 
 def accuracy_scorer(model, dataloader: DataLoader):
-    return model.test_model(dataloader)[0]
+    return model.test_model(dataloader)
 
 
 def get_weights(model: nn.Module.state_dict) -> fl.common.NDArrays:

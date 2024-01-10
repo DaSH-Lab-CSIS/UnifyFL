@@ -62,6 +62,7 @@ class CIFAR10Model(nn.Module):
                 loss += criterion(outputs, labels).item()
                 correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
         accuracy = correct / len(testloader.dataset)
+        loss = loss / len(testloader)
         return loss, accuracy
 
     @staticmethod

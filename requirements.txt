@@ -66,7 +66,7 @@ py-multicodec==0.2.1
 py-multiformats-cid==0.4.4
 py-multihash==2.0.1
 pycparser==2.21
-pycryptodome==3.19.0
+pycryptodome==3.19.1
 python-baseconv==1.2.2
 pyunormalize==15.1.0
 PyYAML==6.0.1

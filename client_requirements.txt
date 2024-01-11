@@ -28,7 +28,7 @@ nvidia-nvtx-cu12==12.1.105
 Pillow==10.1.0
 protobuf==3.20.3
 pycparser==2.21
-pycryptodome==3.19.0
+pycryptodome==3.19.1
 requests==2.31.0
 sympy==1.12
 torch==2.1.2

@@ -96,10 +96,7 @@ def main():
         strategy=strategy,
     )
 
-    wandb.init(
-        project="ekatrafl",
-        config = "config"
-    )
+    wandb.init(project="ekatrafl")
 
 
 # Start Flower server

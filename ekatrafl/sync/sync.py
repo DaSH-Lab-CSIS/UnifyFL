@@ -2,7 +2,6 @@
 from collections import OrderedDict
 import json
 from operator import itemgetter
-import threading
 from time import sleep
 from flwr.common import NDArray, parameters_to_ndarrays
 
@@ -16,9 +15,9 @@ from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 from ekatrafl.base.custom_server import Server
 
-from ekatrafl.base.ipfs import load_model_ipfs, save_model_ipfs
+from ekatrafl.base.ipfs import load_models, save_model_ipfs
 import flwr as fl
-from flwr.server.strategy import aggregate
+from flwr.server.strategy.aggregate import aggregate
 from ekatrafl.base.model import models
 import torch
 import os
@@ -77,6 +76,8 @@ sync_contract = create_sync_contract(w3, sync_contract_address)
 
 time_start = str(datetime.now().strftime("%d-%H-%M-%S"))
 os.makedirs(f"save/sync/{workload}/{time_start}", exist_ok=True)
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 
 # def evaluate(
@@ -101,10 +102,13 @@ class SyncServer(Server):
         super().__init__(*args, **kwargs)
         self.round_ongoing = False
         self.model = model()
+        self.round_id = 0
         registration_contract.functions.registerNode("trainer").transact()
-        threading.Thread(target=self.run_rounds).start()
+        # self.single_round()
+        # removed threading
+        self.run_rounds()
 
-    def set_parameters(self, parameters: NDArray):
+    def set_parameters(self, parameters):
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
@@ -118,7 +122,6 @@ class SyncServer(Server):
             for event in sync_contract.events.StartTraining().get_logs(
                 fromBlock=last_seen_block
             ):
-                print(event, "event received")
                 if event not in events:
                     events.add(event)
                     last_seen_block = event["blockNumber"]
@@ -146,13 +149,15 @@ class SyncServer(Server):
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")
 
-            self.model.load_state_dict(
-                aggregate.aggregate(
-                    asyncio.gather(
-                        *[load_model_ipfs(cid, ipfs_host) for cid in selected_models]
-                    )
-                )
+            param_list = loop.run_until_complete(
+                load_models(selected_models, ipfs_host)
             )
+            models = list(map(parameters_to_ndarrays, param_list))
+            # TODO: we are giving equal weightage for model aggregation
+            models = list(zip(models, [1] * len(models)))
+            weight_arrays = aggregate(models)
+
+            self.set_parameters(weight_arrays)
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
             # TODO: add host to save path
@@ -164,14 +169,14 @@ class SyncServer(Server):
     def single_round(self):
         self.aggregate_models()
         self.round_ongoing = True
+        logger.info(f"Round {self.round_id} started")
         parameters = self.start_round()
 
         if parameters is None:
             print("Error")
             return
-        else:
-            weights = parameters_to_ndarrays(parameters)
-            self.set_parameters(weights)
+        weights = parameters_to_ndarrays(parameters)
+        self.set_parameters(weights)
         self.round_ongoing = False
         cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
         # TODO: add host to save path
@@ -180,10 +185,11 @@ class SyncServer(Server):
             f"save/sync/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
-        cid = asyncio.run(save_model_ipfs(weights, ipfs_host))
+        cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
         sync_contract.functions.submitModel(cid).transact()
         logger.info("Model submitted to contarct")
+        logger.info(f"Round {self.round_id} ended")
 
 
 # Define strategy

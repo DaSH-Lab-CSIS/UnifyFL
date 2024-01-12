@@ -2,7 +2,7 @@
 from collections import OrderedDict
 import json
 from operator import itemgetter
-from flwr.common import ndarrays_to_parameters, parameters_to_ndarrays
+from flwr.common import parameters_to_ndarrays
 
 from datetime import datetime
 import logging
@@ -18,7 +18,7 @@ from ekatrafl.base.custom_server import Server
 from ekatrafl.base.ipfs import load_models, save_model_ipfs
 import flwr as fl
 from flwr.server.strategy.aggregate import aggregate
-from ekatrafl.base.model import get_weights, models
+from ekatrafl.base.model import models
 import torch
 import os
 
@@ -180,7 +180,7 @@ class AsyncServer(Server):
             # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
-                f"save/sync/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-global.pt",
+                f"save/async/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-global.pt",
             )
 
     def single_round(self):
@@ -200,7 +200,7 @@ class AsyncServer(Server):
         # TODO: add host to save path
         torch.save(
             self.model.state_dict(),
-            f"save/sync/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-local.pt",
+            f"save/async/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))

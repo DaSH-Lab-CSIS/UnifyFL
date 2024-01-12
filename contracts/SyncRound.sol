@@ -8,11 +8,6 @@ contract SyncRound {
     RandomNumbers randomNumbers;
     Registration registration;
 
-    constructor(address _randomNumbers, address _registration) {
-        randomNumbers = RandomNumbers(_randomNumbers);
-        registration = Registration(_registration);
-    }
-
     enum RoundPhase {
         Idle,
         Training,
@@ -21,6 +16,12 @@ contract SyncRound {
 
     uint256 public round = 0;
     RoundPhase public currentPhase;
+
+    constructor(address _randomNumbers, address _registration) {
+        randomNumbers = RandomNumbers(_randomNumbers);
+        registration = Registration(_registration);
+        currentPhase = RoundPhase.Idle;
+    }
 
     event StartTraining(uint256 round);
     event StartScoring(uint256 round, address[] scorers, string[] models);

@@ -13,14 +13,15 @@ from flwr.server.app import init_defaults
 from flwr.server.fleet.grpc_bidi.grpc_server import start_grpc_server
 from flwr.server.strategy import Strategy
 
-import wandb
+# import wandb
 
 
 # #Login to wandb
-wandb.login()
+# wandb.login()
 
-id_name = input("Enter the ID for this run: ")
-run = wandb.init(project="ekatrafl", id = id_name)
+# id_name = input("Enter the ID for this run: ")
+# run = wandb.init(project="ekatrafl", id = id_name)
+
 
 class Server(fl.server.Server):
     def __init__(

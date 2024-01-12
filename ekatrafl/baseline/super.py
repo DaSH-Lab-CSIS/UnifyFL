@@ -1,5 +1,7 @@
 """Flower server example."""
 from collections import OrderedDict
+import getpass
+import socket
 
 import flwr as fl
 import torch
@@ -96,7 +98,11 @@ def main():
         strategy=strategy,
     )
 
-    wandb.init(project="ekatrafl")
+    wandb.init(
+        project="ekatrafl",
+        config={"workload": "cifar10"},
+        id=f"{getpass.getuser()}-{socket.gethostname()}",
+    )
 
 
 # Start Flower server

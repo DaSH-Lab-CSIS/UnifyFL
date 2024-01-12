@@ -18,6 +18,7 @@ from ekatrafl.base.model import models
 # Login to wandb
 wandb.login()
 
+run = wandb.init(project="ekatrafl", config={"workload": "cifar10"})
 
 # Define Flower client
 class FlowerClient(fl.client.NumPyClient):

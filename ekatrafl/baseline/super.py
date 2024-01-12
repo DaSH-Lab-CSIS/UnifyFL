@@ -14,7 +14,6 @@ import wandb
 # Login to wandb
 wandb.login()
 
-
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
@@ -99,7 +98,7 @@ def main():
 
     wandb.init(
         project="ekatrafl",
-        config = json.load(f)
+        config = "config"
     )
 
 

@@ -13,7 +13,7 @@ from flwr.server.app import init_defaults
 from flwr.server.fleet.grpc_bidi.grpc_server import start_grpc_server
 from flwr.server.strategy import Strategy
 
-# import wandb
+import wandb
 
 
 # #Login to wandb

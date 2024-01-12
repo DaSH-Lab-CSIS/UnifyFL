@@ -18,7 +18,8 @@ from ekatrafl.base.model import models
 # Login to wandb
 wandb.login()
 
-run = wandb.init(project="ekatrafl", config={"workload": "cifar10"})
+id_name = input("Enter the ID for this run: ")
+run = wandb.init(project="ekatrafl", config={"workload": "cifar10"}, id = id_name)
 
 # Define Flower client
 class FlowerClient(fl.client.NumPyClient):
@@ -78,7 +79,7 @@ def main():
         client=FlowerClient(model),
     )
 
-    wandb.init(project="ekatrafl", config= "config")
+    wandb.init(project="ekatrafl")
 
 
 if __name__ == "__main__":

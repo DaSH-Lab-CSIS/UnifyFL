@@ -11,6 +11,8 @@ import wandb
 # Login to wandb
 wandb.login()
 
+id_name = input("Enter the ID for this run: ")
+run = wandb.init(project="ekatrafl", id = id_name)
 
 from ekatrafl.base.model import models
 
@@ -70,10 +72,7 @@ def main():
         server_address=flwr_super_address, client=ClientServer(flwr_sub_address)
     )
     
-    wandb.init(
-        project="ekatrafl",
-        config = "config"
-    )
+    wandb.init(project="ekatrafl")
 
 if __name__ == "__main__":
     main()

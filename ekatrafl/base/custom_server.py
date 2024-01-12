@@ -17,8 +17,10 @@ from flwr.server.strategy import Strategy
 
 
 # #Login to wandb
-# wandb.login()
+wandb.login()
 
+id_name = input("Enter the ID for this run: ")
+run = wandb.init(project="ekatrafl", id = id_name)
 
 class Server(fl.server.Server):
     def __init__(

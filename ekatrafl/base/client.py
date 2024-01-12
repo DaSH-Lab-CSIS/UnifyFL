@@ -4,7 +4,8 @@ import flwr as fl
 from flwr.common.typing import NDArray
 import torch
 import wandb
-
+import socket
+import getpass
 from ekatrafl.base.model import models
 
 
@@ -18,8 +19,6 @@ from ekatrafl.base.model import models
 # Login to wandb
 wandb.login()
 
-id_name = input("Enter the ID for this run: ")
-run = wandb.init(project="ekatrafl", config={"workload": "cifar10"}, id = id_name)
 
 # Define Flower client
 class FlowerClient(fl.client.NumPyClient):
@@ -79,7 +78,11 @@ def main():
         client=FlowerClient(model),
     )
 
-    wandb.init(project="ekatrafl")
+    wandb.init(
+        project="ekatrafl",
+        config={"workload": "cifar10"},
+        id=f"{getpass.getuser()}-{socket.gethostname()}",
+    )
 
 
 if __name__ == "__main__":

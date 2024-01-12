@@ -97,6 +97,6 @@ class Server(fl.server.Server):
         res_fit = self.server.fit_round(self.num_rounds, self.config.round_timeout)
         if res_fit is not None:
             parameters_prime, _, _ = res_fit  # fit_metrics_aggregated
-            print(type(parameters_prime))
+            # print(type(parameters_prime))
             self.server.parameters = parameters_prime
             return parameters_prime

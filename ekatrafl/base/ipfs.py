@@ -13,7 +13,7 @@ import pickle
 async def save_model_ipfs(state_dict: Parameters, ipfs_host: str) -> str:
     client = aioipfs.AsyncIPFS(maddr=ipfs_host)
     cur_time = str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + ".pickle")
-    print(type(state_dict))
+    # print(type(state_dict))
     # torch.save(state_dict, f"upload/{cur_time}")
     # np.save(f"upload/{cur_time}", state_dict, allow_pickle=True)
     pickle.dump(state_dict, open(f"upload/{cur_time}", "wb"))

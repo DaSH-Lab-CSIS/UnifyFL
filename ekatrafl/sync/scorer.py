@@ -64,7 +64,7 @@ def score_function(models, testloader: DataLoader):
     if scoring == "accuracy":
         q = []
         for model_dict in models:
-            weights = parameters_to_ndarrays(parameters)
+            weights = parameters_to_ndarrays(model_dict)
             set_parameters(nn_model, weights)
             q.append(scorer(nn_model, testloader))
         return q
@@ -90,8 +90,10 @@ async def score_model(round: int, cids: str):
             testloader,
         ),
     ):
-        logger.info(f"model: {cid} -> score: {(score):>0.1f}")
-        sync_contract.functions.submitScore(round, cid, int(score)).transact()
+        # score is now a tuple of loss and accuracy
+        # print(score)
+        logger.info(f"model: {cid} -> score: {(score[1]):>0.1f}")
+        sync_contract.functions.submitScore(round, cid, int(score[1] * 100)).transact()
     logger.info(f"Model scores submitted to contract")
 
 

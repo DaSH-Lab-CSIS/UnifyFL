@@ -78,7 +78,7 @@ def main():
         client=FlowerClient(model),
     )
 
-    wandb.init(project="ekatrafl", config=json.load(f))
+    wandb.init(project="ekatrafl", config= "config")
 
 
 if __name__ == "__main__":

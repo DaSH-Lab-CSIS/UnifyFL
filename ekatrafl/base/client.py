@@ -22,9 +22,10 @@ wandb.login()
 
 # Define Flower client
 class FlowerClient(fl.client.NumPyClient):
-    def __init__(self, model):
+    def __init__(self, model, log=False):
         self.model = model()
         self.trainloader, self.testloader = model.load_data()
+        self.log = log
         super().__init__()
 
     def get_parameters(self, config):
@@ -44,7 +45,8 @@ class FlowerClient(fl.client.NumPyClient):
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         loss, accuracy = self.model.test_model(self.testloader)
-        wandb.log({"accuracy": accuracy, "loss": loss})
+        if self.log:
+            wandb.log({"accuracy": accuracy, "loss": loss})
         return loss, len(self.testloader.dataset), {"accuracy": accuracy}
 
 
@@ -75,7 +77,7 @@ def main():
     model = models[workload]
     fl.client.start_numpy_client(
         server_address=flwr_server_address,
-        client=FlowerClient(model),
+        client=FlowerClient(model, log=True),
     )
 
     wandb.init(

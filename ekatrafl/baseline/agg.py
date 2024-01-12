@@ -72,7 +72,7 @@ def main():
     
     wandb.init(
         project="ekatrafl",
-        config = json.load(f)
+        config = "config"
     )
 
 if __name__ == "__main__":

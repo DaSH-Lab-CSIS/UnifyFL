@@ -3,19 +3,19 @@ import json
 import logging
 import math
 import sys
-from time import sleep
+import time
 from operator import itemgetter
-from flwr.common import parameters_to_ndarrays
+
 import torch
 
+from flwr.common import parameters_to_ndarrays
 from torch.utils.data import DataLoader, Subset
 from web3 import Web3
-
-# from web3.middleware import geth_poa_middleware
-from ekatrafl.base.contract import create_async_contract, create_reg_contract
+from web3.middleware import geth_poa_middleware
+from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 
 from ekatrafl.base.ipfs import load_model_ipfs
-from ekatrafl.base.model import accuracy_scorer, models, scorers, set_parameters
+from ekatrafl.base.model import models, scorers, set_parameters
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -31,7 +31,7 @@ with open(sys.argv[1]) as f:
         scoring,
         geth_endpoint,
         registration_contract_address,
-        async_contract_address,
+        sync_contract_address,
         ipfs_host,
         account,
     ) = itemgetter(
@@ -45,16 +45,32 @@ with open(sys.argv[1]) as f:
     )(
         config
     )
-
-model = models[workload]
-scorer = scorers[scoring]
+    model = models[workload]
+    scorer = scorers[scoring]
 
 logger.info(f"Model: {model.__name__}")
 logger.info(f"Scorer: {scorer.__name__}")
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
-# w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = account
+
+
+nn_model = models[workload]()
+# print(nn_model)
+
+
+def score_function(models, testloader: DataLoader):
+    if scoring == "accuracy":
+        q = []
+        for model_dict in models:
+            weights = parameters_to_ndarrays(parameters)
+            set_parameters(nn_model, weights)
+            q.append(scorer(nn_model, testloader))
+        return q
+    elif scoring == "multi_krum":
+        return scorer(models)
+
 
 testset = model.get_testset()
 testloader = DataLoader(
@@ -63,21 +79,19 @@ testloader = DataLoader(
 )
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
-async_contract = create_async_contract(w3, async_contract_address)
+sync_contract = create_sync_contract(w3, sync_contract_address)
 
 
-async def score_model(trainer: str, cid: str):
-    model = models[workload]()
-    logger.info(f"Model recevied to score with CID: {cid}")
-    # model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
-    parameters = await load_model_ipfs(cid, ipfs_host)
-    weights = parameters_to_ndarrays(parameters)
-    set_parameters(model, weights)
-    logger.info("Model pull from IPFS")
-    loss, accuracy = accuracy_scorer(model, testloader)
-    logger.info(f"Accuracy: {(accuracy*100):>0.2f}%")
-    logger.info(f"Loss: {(loss):>0.2f}")
-    async_contract.functions.submitScore(cid, int(accuracy)).transact()
+async def score_model(round: int, cids: str):
+    for cid, score in zip(
+        cids,
+        score_function(
+            await asyncio.gather(*[load_model_ipfs(cid, ipfs_host) for cid in cids]),
+            testloader,
+        ),
+    ):
+        logger.info(f"model: {cid} -> score: {(score):>0.1f}")
+        sync_contract.functions.submitScore(round, cid, int(score)).transact()
     logger.info(f"Model scores submitted to contract")
 
 
@@ -86,19 +100,14 @@ def main():
     events = set()
     last_seen_block = w3.eth.block_number
     while True:
-        for event in async_contract.events.StartScoring().get_logs(
+        for event in sync_contract.events.StartScoring().get_logs(
             fromBlock=last_seen_block
         ):
             if event not in events:
                 events.add(event)
                 last_seen_block = event["blockNumber"]
                 if w3.eth.default_account in event["args"]["scorers"]:
-                    print(event["args"])
                     asyncio.run(
-                        score_model(event["args"]["trainer"], event["args"]["model"])
+                        score_model(event["args"]["round"], event["args"]["models"])
                     )
-        sleep(1)
-
-
-if __name__ == "__main__":
-    main()
+        time.sleep(1)

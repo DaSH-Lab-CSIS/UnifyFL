@@ -11,7 +11,9 @@ authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa
 
 [tool.poetry.scripts]
 party = "ekatrafl.base.client:main"
-sync-agg = "ekatrafl.sync:main"
+sync-agg = "ekatrafl.sync.sync:main"
+sync-scorer = "ekatrafl.sync.scorer:main"
+sync-watchman = "ekatrafl.sync.watchman:main"
 async-agg = "ekatrafl.async.async:main"
 async-scorer = "ekatrafl.async.scorer:main"
 base-sup="ekatrafl.baseline.super:main"

@@ -24,13 +24,23 @@ print("reg", registration)
 output2 = subprocess.Popen(command2, stdout=subprocess.PIPE).communicate()[-2]
 random_numbers = output2.decode().split("\n")[-3].split()[-1]
 
-c3 = (
-    f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/AsyncRound.sol:AsyncRound"
-    + " --constructor-args "
-    + random_numbers
-    + " "
-    + registration
-)
+if mode == "1":
+    c3 = (
+        f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/AsyncRound.sol:AsyncRound"
+        + " --constructor-args "
+        + random_numbers
+        + " "
+        + registration
+    )
+else:
+    c3 = (
+        f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/SyncRound.sol:SyncRound"
+        + " --constructor-args "
+        + random_numbers
+        + " "
+        + registration
+    )
+print(c3)
 output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[-2]
 sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)

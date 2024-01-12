@@ -3,7 +3,7 @@ from collections import OrderedDict
 import json
 from operator import itemgetter
 import threading
-from time import time
+from time import sleep
 from flwr.common import NDArray, parameters_to_ndarrays
 
 from datetime import datetime
@@ -112,18 +112,20 @@ class SyncServer(Server):
     def run_rounds(self):
         events = set()
         last_seen_block = w3.eth.block_number
+        print("started run rounds")
         # TODO: remove threading and integrate into single_round
         while True:
             for event in sync_contract.events.StartTraining().get_logs(
                 fromBlock=last_seen_block
             ):
+                print(event, "event received")
                 if event not in events:
                     events.add(event)
                     last_seen_block = event["blockNumber"]
                     if not self.round_ongoing:
                         self.round_id = event["args"]["round"]
                         self.single_round()
-            time.sleep(1)
+            sleep(1)
 
     def aggregate_models(self):
         global_models = filter(

@@ -9,5 +9,8 @@
     "flwr_min_evaluate_clients": 1,
     "flwr_server_address": "localhost:5000",
     "ipfs_host": "/ip4/127.0.0.1/tcp/5001",
-    "scorer": "accuracy"
+    "scorer": "accuracy",
+    "k": -1,
+    "aggregation_policy": "pick_top_2",
+    "scoring_policy": "assign_score_mean"
 }

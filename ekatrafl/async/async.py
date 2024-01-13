@@ -12,7 +12,7 @@ import asyncio
 
 from web3 import Web3
 
-# from web3.middleware import geth_poa_middleware
+from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_async_contract
 from ekatrafl.base.custom_server import Server
 
@@ -80,7 +80,7 @@ def set_weights(model, parameters):
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
 
 # Add this line when changing from anvil to geth chain
-# w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = geth_account
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
@@ -146,7 +146,7 @@ class AsyncServer(Server):
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
         selected_models = pick_selected_model(global_models, aggregation_policy, scoring_policy, int(k))
-        
+
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")
             # models = list(

@@ -1,0 +1,88 @@
+# /home/user/.config/tmuxinator/baseline.yml
+
+name: async
+root: ~/EkatraFL
+
+windows:
+  - aggregators:
+      layout: tiled
+      # Synchronize all panes of this window, can be enabled before or after the pane commands run.
+      # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
+      # synchronize: after
+      panes:
+              - d2:
+                - conda activate ekatrafl
+                - python3 scripts/deploy_contracts.py 1
+              - d2:
+                - cd ~/EkatraFL
+                - conda activate ekatrafl
+                - poetry run async-agg configs/async/agg.config.json
+              - d3:
+                - ssh user@10.8.1.48
+                - cd ~/EkatraFL
+                - . /home/user/.cache/pypoetry/virtualenvs/ekatrafl-pPnP7Z4X-py3.10/bin/activate
+                - poetry run async-agg configs/async/agg.config.json
+              - d4:
+                - ssh user@10.8.1.44 -p 222
+                - cd ~/EkatraFL
+                - conda activate tinyfl
+                - poetry run async-agg configs/async/agg.config.json
+  - scorers:
+      layout: tiled
+      panes:
+              - d2:
+                - cd ~/EkatraFL
+                - conda activate ekatrafl
+                - poetry run async-scorer configs/async/agg.config.json
+              - d3:
+                - ssh user@10.8.1.48
+                - cd ~/EkatraFL
+                - . /home/user/.cache/pypoetry/virtualenvs/ekatrafl-pPnP7Z4X-py3.10/bin/activate
+                - poetry run async-scorer configs/async/agg.config.json
+              - d4:
+                - ssh user@10.8.1.44 -p 222
+                - cd ~/EkatraFL
+                - conda activate tinyfl
+                - poetry run async-scorer configs/async/agg.config.json
+  - rpi:
+      layout: tiled
+      panes:
+              - rpi1:
+                - ssh rpi3@10.8.1.192
+                - conda activate tinyfl
+                - cd ~/EkatraFL
+                - poetry run party configs/party.json
+              - rpi2:
+                - ssh rpi2@10.8.1.43
+                - conda activate tinyfl
+                - cd ~/EkatraFL
+                - poetry run party configs/party.json
+              - rpi3:
+                - ssh rpi3@10.8.1.38
+                - conda activate tinyfl
+                - cd ~/EkatraFL
+                - poetry run party configs/party.json
+              - rpi4:
+                - ssh rpi4@10.8.1.28
+                - cd ~/EkatraFL
+                - conda activate tinyfl-3.10
+                - poetry run party configs/party.json
+  - nano:
+      layout: tiled
+      panes:
+              - nano2:
+                - ssh user@10.8.1.155
+                - cd ~/EkatraFL
+                - conda activate tinyfl
+                - poetry run party configs/party.json
+              - nano4:
+                - ssh user@10.8.1.27
+                - cd ~/EkatraFL
+                - conda activate tinyfl
+                - poetry run party configs/party.json
+  - geth:
+    layout: tiled
+    panes:
+      - d3:
+        - ssh user@10.8.1.48
+        - sudo geth --datadir node3 --port 30306 --bootnodes enode://ce5773df3f7174545f309d66fbe50a9a36afb7e3c40a87180d862d9e05fdf44d014bcb5a68bdb4ac2f02c112c96a6c59077244759fea7c828374fc46fd337315@10.8.1.45:0?discport=30301  --networkid 12345678 --unlock 0x8dE1e5d618FaCe5193750bCbBd7737460aF2DbA9 --password node3/password.txt --authrpc.port 8551  --rpc.enabledeprecatedpersonal --allow-insecure-unlock --vmdebug --http --http.api 'web3,eth,net,debug,personal' --http.corsdomain '*' --syncmode full --http.port 8547 --metrics --metrics.expensive --metrics.influxdb --metrics.influxdb.database "bfl" --metrics.influxdb.endpoint "http://0.0.0.0:8086" --metrics.influxdb.username "bfl" --metrics.influxdb.password "bfl123" --http.addr "10.8.1.48" --rpc.gascap 0 --mine --miner.etherbase=0x8dE1e5d618FaCe5193750bCbBd7737460aF2DbA9

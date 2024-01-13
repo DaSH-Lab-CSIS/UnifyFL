@@ -1,11 +1,12 @@
 # To be run from the base folder, it moves into blockchain folder to run commands.
 import subprocess, sys
+import spur
 
 # mode is 1 for sync, 2 for async
 mode = sys.argv[1]
 
-RPC_URL = "127.0.0.1:8545"
-PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+RPC_URL = "http://10.8.1.25:8547"
+PRIVATE_KEY = "0xbec97322819fee49724622e4d6f5af2d7b16d42e4230f276747b1a1750e3a61a"
 # os.chdir("contracts")
 c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"
 command1 = c1.split()
@@ -48,7 +49,7 @@ print(output3.decode(), sync)
 com2 = f"python3 scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
-# names = [("10.8.1.44", 22), ("10.8.1.46", 222), ("10.8.1.48", 222)]
+names = [("10.8.1.25", 22), ("10.8.1.44", 222), ("10.8.1.48", 222)]
 # if mode == "1":
 #     c3 = (
 #         "forge create --rpc-url {RPC_URL} --private-key 0x9b19a5202b4678b62adc4af295c791b74a04f1bced3f014772f82cd60f919989 src/SyncRound.sol:SyncRound"
@@ -64,11 +65,11 @@ print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
 #     output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[0]
 #     sync = output3.decode().split("\n")[-3].split()[-1]
 #
-# for i in names:
-#     shell = spur.SshShell(hostname=i[0], port=i[1], username="user", password="user123")
-#     result = shell.run("ls".split())
-#     print(result.output)
-#     com2 = f"python3 Blockchain-Federated-Learning/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync"
-#     print(com2)
-#     shell.run(com2.split())
-#     print(f"ran for {i}")
+for i in names:
+    shell = spur.SshShell(hostname=i[0], port=i[1], username="user", password="user123")
+    result = shell.run("ls".split())
+    # print(result.output)
+    com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync"
+    print(com2)
+    shell.run(com2.split())
+    print(f"ran for {i}")

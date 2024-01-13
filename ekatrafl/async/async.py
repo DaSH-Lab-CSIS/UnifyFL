@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import json
 from operator import itemgetter
+from ekatrafl.base.policies import pick_selected_model
 from flwr.common import parameters_to_ndarrays
 
 from datetime import datetime
@@ -42,6 +43,9 @@ with open(sys.argv[1]) as f:
         flwr_min_evaluate_clients,
         flwr_server_address,
         ipfs_host,
+        aggregation_policy,
+        scoring_policy,
+        k
     ) = itemgetter(
         "workload",
         "geth_endpoint",
@@ -53,10 +57,12 @@ with open(sys.argv[1]) as f:
         "flwr_min_evaluate_clients",
         "flwr_server_address",
         "ipfs_host",
+        "aggregation_policy",
+        "scoring_policy",
+        "k"
     )(
         config
     )
-
 
 model = models[workload]
 
@@ -139,17 +145,8 @@ class AsyncServer(Server):
             lambda x: x[0] != "",
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
-        selected_models = list(
-            map(
-                lambda x: x[0],
-                sorted(
-                    map(lambda x: (x[0], sum(x[1]) / (len(x[1]) + 1)), global_models),
-                    key=lambda x: x[1],
-                    reverse=True,
-                )[:3],
-            )
-        )
-
+        selected_models = pick_selected_model(global_models, aggregation_policy, scoring_policy, int(k))
+        
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")
             # models = list(

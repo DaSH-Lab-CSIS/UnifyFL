@@ -4,6 +4,9 @@ import spur
 
 # mode is 1 for sync, 2 for async
 mode = sys.argv[1]
+aggregation_policy = sys.argv[2]
+scoring_policy = sys.argv[3]
+k = sys.argv[4]
 
 RPC_URL = "http://10.8.1.25:8547"
 PRIVATE_KEY = "0xbec97322819fee49724622e4d6f5af2d7b16d42e4230f276747b1a1750e3a61a"
@@ -69,7 +72,7 @@ for i in names:
     shell = spur.SshShell(hostname=i[0], port=i[1], username="user", password="user123")
     result = shell.run("ls".split())
     # print(result.output)
-    com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync"
+    com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k}"
     print(com2)
     shell.run(com2.split())
     print(f"ran for {i}")

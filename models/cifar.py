@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR10
+from torchvision.datasets import ImageFolder
 from torchvision.transforms import Compose, Normalize, ToTensor
 from tqdm import tqdm
 
@@ -69,15 +69,15 @@ class CIFAR10Model(nn.Module):
     def load_data():
         """Load CIFAR-10 (training and test set)."""
         trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-        trainset = CIFAR10("./data", train=True, download=True, transform=trf)
-        testset = CIFAR10("./data", train=False, download=True, transform=trf)
+        trainset = ImageFolder("./data/cifar10/train", transform=trf)
+        testset = ImageFolder("./data/cifar10/train", transform=trf)
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 
     @staticmethod
     def get_testset():
         """Load CIFAR-10 test set."""
         trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-        testset = CIFAR10("./data", train=False, download=True, transform=trf)
+        testset = ImageFolder("./data/cifar10/test", transform=trf)
         return testset
 
 

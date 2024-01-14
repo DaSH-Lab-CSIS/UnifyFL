@@ -58,7 +58,8 @@ w3.eth.default_account = account
 
 testset = model.get_testset()
 testloader = DataLoader(
-    Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
+    testset,
+    # Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
     batch_size=64,
 )
 

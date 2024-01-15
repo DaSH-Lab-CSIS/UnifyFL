@@ -95,7 +95,7 @@ async_contract = create_async_contract(w3, async_contract_address)
 
 
 time_start = str(datetime.now().strftime("%d-%H-%M-%S"))
-os.makedirs(f"save/async/{workload}/{time_start}", exist_ok=True)
+os.makedirs(f"save/async/{workload}/{experiment_id}", exist_ok=True)
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
@@ -185,7 +185,7 @@ class AsyncServer(Server):
             # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
-                f"save/async/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-global.pt",
+                f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
 
     def single_round(self):
@@ -208,7 +208,7 @@ class AsyncServer(Server):
         # TODO: add host to save path
         torch.save(
             self.model.state_dict(),
-            f"save/async/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-local.pt",
+            f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))

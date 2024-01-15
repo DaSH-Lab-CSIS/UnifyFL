@@ -100,7 +100,7 @@ def main():
             "scorer": scoring,
         },
         group=experiment_id,
-        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-async-scorer",
+        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-scorer",
     )
     while True:
         for event in async_contract.events.StartScoring().get_logs(

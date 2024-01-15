@@ -192,6 +192,9 @@ class AsyncServer(Server):
         self.aggregate_models()
         self.round_ongoing = True
         self.round_id += 1
+        if self.round_id >= 15:
+            wandb.finish()
+            exit()
         logger.info(f"Round {self.round_id} started")
         parameters = self.start_round()
 

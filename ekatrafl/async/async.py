@@ -230,8 +230,6 @@ strategy = fl.server.strategy.FedAvg(
 
 def main():
     """Start server and train model."""
-    AsyncServer(server_address=flwr_server_address, strategy=strategy)
-
     wandb.init(
         project="ekatrafl",
         config={
@@ -243,6 +241,8 @@ def main():
         group=experiment_id,
         name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
     )
+    AsyncServer(server_address=flwr_server_address, strategy=strategy)
+
 
 
 if __name__ == "__main__":

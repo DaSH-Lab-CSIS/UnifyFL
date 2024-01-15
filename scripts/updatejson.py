@@ -5,9 +5,9 @@ import sys
 
 registration = sys.argv[1]
 name = sys.argv[2]
-aggregation_policy = sys.argv[3]
-scoring_policy = sys.argv[4]
-k = sys.argv[5]
+aggregation_policy = sys.argv[4]
+scoring_policy = sys.argv[5]
+k = sys.argv[6]
 files = ["agg.config.json"]
 
 os.chdir(f"EkatraFL/configs/{sys.argv[3]}")

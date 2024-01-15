@@ -1,6 +1,7 @@
 # To be run from the base folder, it moves into blockchain folder to run commands.
 import subprocess, sys
 import spur
+import os
 
 # mode is 1 for sync, 2 for async
 mode = sys.argv[1]
@@ -48,11 +49,11 @@ print(c3)
 output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[-2]
 sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
-# os.chdir("..")
-com2 = f"python3 scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync"
+os.chdir("..")
+com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
-names = [("10.8.1.25", 22), ("10.8.1.44", 222), ("10.8.1.48", 222)]
+names = [("10.8.1.25", 222), ("10.8.1.44", 222), ("10.8.1.48", 222)]
 # if mode == "1":
 #     c3 = (
 #         "forge create --rpc-url {RPC_URL} --private-key 0x9b19a5202b4678b62adc4af295c791b74a04f1bced3f014772f82cd60f919989 src/SyncRound.sol:SyncRound"
@@ -68,7 +69,7 @@ names = [("10.8.1.25", 22), ("10.8.1.44", 222), ("10.8.1.48", 222)]
 #     output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[0]
 #     sync = output3.decode().split("\n")[-3].split()[-1]
 #
-for i in names:
+for i in names[1:]:
     shell = spur.SshShell(hostname=i[0], port=i[1], username="user", password="user123")
     result = shell.run("ls".split())
     # print(result.output)

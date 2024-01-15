@@ -89,7 +89,7 @@ async_contract = create_async_contract(w3, async_contract_address)
 
 
 time_start = str(datetime.now().strftime("%d-%H-%M-%S"))
-os.makedirs(f"save/sync/{workload}/{time_start}", exist_ok=True)
+os.makedirs(f"save/async/{workload}/{time_start}", exist_ok=True)
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)

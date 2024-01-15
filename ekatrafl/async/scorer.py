@@ -3,7 +3,7 @@ import getpass
 import json
 import logging
 import math
-from socket import socket
+import socket
 import sys
 from time import sleep
 from operator import itemgetter

@@ -241,7 +241,7 @@ def main():
             "k": k,
         },
         group=experiment_id,
-        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
+        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
     )
 
 

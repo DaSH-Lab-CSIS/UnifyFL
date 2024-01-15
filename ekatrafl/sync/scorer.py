@@ -1,7 +1,9 @@
 import asyncio
+import getpass
 import json
 import logging
 import math
+import socket
 import sys
 import time
 from operator import itemgetter
@@ -16,7 +18,9 @@ from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 
 from ekatrafl.base.ipfs import load_model_ipfs
 from ekatrafl.base.model import models, scorers, set_parameters
+import wandb
 
+wandb.login()
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
@@ -34,6 +38,7 @@ with open(sys.argv[1]) as f:
         sync_contract_address,
         ipfs_host,
         account,
+        experiment_id,
     ) = itemgetter(
         "workload",
         "scorer",
@@ -42,6 +47,7 @@ with open(sys.argv[1]) as f:
         "contract_address",
         "ipfs_host",
         "geth_account",
+        "experiment_id",
     )(
         config
     )
@@ -102,6 +108,15 @@ def main():
     registration_contract.functions.registerNode("scorer").transact()
     events = set()
     last_seen_block = w3.eth.block_number
+    wandb.init(
+        project="ekatrafl",
+        config={
+            "workload": "cifar10",
+            "scorer": scoring,
+        },
+        group=experiment_id,
+        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-sync-scorer",
+    )
     while True:
         for event in sync_contract.events.StartScoring().get_logs(
             fromBlock=last_seen_block

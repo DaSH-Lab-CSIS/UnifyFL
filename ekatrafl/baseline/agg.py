@@ -2,6 +2,7 @@ import getpass
 import logging
 from operator import itemgetter
 import socket
+import time
 from flwr.common import parameters_to_ndarrays
 from ekatrafl.base.custom_server import Server
 from ekatrafl.base.client import FlowerClient
@@ -32,6 +33,7 @@ with open(sys.argv[1]) as f:
         flwr_min_evaluate_clients,
         flwr_super_address,
         flwr_sub_address,
+        experiment_id,
     ) = itemgetter(
         "workload",
         "flwr_min_fit_clients",
@@ -39,6 +41,7 @@ with open(sys.argv[1]) as f:
         "flwr_min_evaluate_clients",
         "flwr_super_address",
         "flwr_sub_address",
+        "experiment_id",
     )(
         config
     )
@@ -74,8 +77,11 @@ def main():
 
     wandb.init(
         project="ekatrafl",
-        config={"workload": "cifar10"},
-        id=f"{getpass.getuser()}-{socket.gethostname()}",
+        config={
+            "workload": "cifar10",
+        },
+        group=experiment_id,
+        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-baseline-agg",
     )
 
 

@@ -2,13 +2,14 @@
 import subprocess, sys
 import spur
 import os
+import uuid
 
 # mode is 1 for sync, 2 for async
 mode = sys.argv[1]
 aggregation_policy = sys.argv[2]
 scoring_policy = sys.argv[3]
 k = sys.argv[4]
-
+experiment_id = str(uuid.uuid4())
 RPC_URL = "http://10.8.1.25:8547"
 PRIVATE_KEY = "0xbec97322819fee49724622e4d6f5af2d7b16d42e4230f276747b1a1750e3a61a"
 # os.chdir("contracts")
@@ -50,7 +51,7 @@ output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[-2]
 sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
 os.chdir("..")
-com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k}"
+com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k} {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
 names = [("10.8.1.25", 222), ("10.8.1.44", 222), ("10.8.1.48", 222)]
@@ -73,7 +74,7 @@ for i in names[1:]:
     shell = spur.SshShell(hostname=i[0], port=i[1], username="user", password="user123")
     result = shell.run("ls".split())
     # print(result.output)
-    com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k}"
+    com2 = f"python3 EkatraFL/scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k} {experiment_id}"
     print(com2)
     shell.run(com2.split())
     print(f"ran for {i}")

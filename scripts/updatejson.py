@@ -8,6 +8,7 @@ name = sys.argv[2]
 aggregation_policy = sys.argv[4]
 scoring_policy = sys.argv[5]
 k = sys.argv[6]
+experiment_id = sys.argv[7]
 files = ["agg.config.json"]
 
 os.chdir(f"EkatraFL/configs/{sys.argv[3]}")
@@ -19,6 +20,7 @@ for i in files:
         data["aggregation_policy"] = aggregation_policy
         data["scoring_policy"] = scoring_policy
         data["k"] = k
+        data["experiment_id"] = experiment_id
     with open(i, "w") as jsonFile:
         json.dump(data, jsonFile, indent=4)
     print(f"Updated {i} with {registration} and {name}")

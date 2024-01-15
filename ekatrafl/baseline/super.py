@@ -33,6 +33,7 @@ with open(sys.argv[1]) as f:
         flwr_min_available_clients,
         flwr_min_evaluate_clients,
         flwr_server_address,
+        experiment_id,
     ) = itemgetter(
         "workload",
         "num_rounds",
@@ -40,6 +41,7 @@ with open(sys.argv[1]) as f:
         "flwr_min_available_clients",
         "flwr_min_evaluate_clients",
         "flwr_server_address",
+        "experiment_id",
     )(
         config
     )
@@ -100,8 +102,11 @@ def main():
 
     wandb.init(
         project="ekatrafl",
-        config={"workload": "cifar10"},
-        id=f"{getpass.getuser()}-{socket.gethostname()}",
+        config={
+            "workload": "cifar10",
+        },
+        group=experiment_id,
+        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-super-agg",
     )
 
 

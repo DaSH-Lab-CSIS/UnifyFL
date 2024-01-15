@@ -1,7 +1,9 @@
 """Async EkatraFl server implementation."""
 from collections import OrderedDict
+import getpass
 import json
 from operator import itemgetter
+import socket
 from ekatrafl.base.policies import pick_selected_model
 from flwr.common import parameters_to_ndarrays
 
@@ -11,7 +13,7 @@ import sys
 import asyncio
 
 from web3 import Web3
-
+import wandb
 from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_async_contract
 from ekatrafl.base.custom_server import Server
@@ -22,6 +24,8 @@ from flwr.server.strategy.aggregate import aggregate
 from ekatrafl.base.model import models
 import torch
 import os
+
+wandb.login()
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -45,7 +49,8 @@ with open(sys.argv[1]) as f:
         ipfs_host,
         aggregation_policy,
         scoring_policy,
-        k
+        k,
+        experiment_id,
     ) = itemgetter(
         "workload",
         "geth_endpoint",
@@ -59,7 +64,8 @@ with open(sys.argv[1]) as f:
         "ipfs_host",
         "aggregation_policy",
         "scoring_policy",
-        "k"
+        "k",
+        "experiment_id",
     )(
         config
     )
@@ -145,7 +151,9 @@ class AsyncServer(Server):
             lambda x: x[0] != "",
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
-        selected_models = pick_selected_model(global_models, aggregation_policy, scoring_policy, int(k))
+        selected_models = pick_selected_model(
+            global_models, aggregation_policy, scoring_policy, int(k)
+        )
 
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")
@@ -220,6 +228,18 @@ strategy = fl.server.strategy.FedAvg(
 def main():
     """Start server and train model."""
     AsyncServer(server_address=flwr_server_address, strategy=strategy)
+
+    wandb.init(
+        project="ekatrafl",
+        config={
+            "workload": "cifar10",
+            "aggregation_policy": aggregation_policy,
+            "scoring_policy": scoring_policy,
+            "k": k,
+        },
+        group=experiment_id,
+        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
+    )
 
 
 if __name__ == "__main__":

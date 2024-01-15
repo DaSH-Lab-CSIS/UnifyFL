@@ -13,6 +13,7 @@ import sys
 import asyncio
 
 from web3 import Web3
+from time import sleep
 import wandb
 from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_async_contract
@@ -192,7 +193,7 @@ class AsyncServer(Server):
         self.aggregate_models()
         self.round_ongoing = True
         self.round_id += 1
-        if self.round_id >= 15:
+        if self.round_id >= 100:
             wandb.finish()
             exit()
         logger.info(f"Round {self.round_id} started")
@@ -213,7 +214,13 @@ class AsyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
-        async_contract.functions.submitModel(cid).transact()
+        while True:
+            try:
+                async_contract.functions.submitModel(cid).transact()
+                break
+            except:
+                sleep(5)
+                continue
         logger.info("Model submitted to contarct")
         logger.info(f"Round {self.round_id} ended")
         # TODO: add timer here

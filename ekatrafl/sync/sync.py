@@ -67,7 +67,6 @@ with open(sys.argv[1]) as f:
 
 model = models[workload]
 
-trainloader, testloader = model.load_data()
 
 # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

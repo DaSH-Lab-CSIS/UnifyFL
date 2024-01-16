@@ -4,7 +4,7 @@ import csv
 import sys
 import torch
 import csv
-from models.cifar import CIFAR10Model
+from ..models.cifar import CIFAR10Model
 
 model=CIFAR10Model.create_model()
 local_records=[]

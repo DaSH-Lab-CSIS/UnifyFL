@@ -10,5 +10,5 @@ for remote_ip in ${remote_ips[*]};
         dest_folder=$local_destination/$1/cifar10/$2/$remote_ip
         mkdir -p $dest_folder
         scp -r -P222 "$remote_user@$remote_ip:$remote_path" $dest_folder
-        python evaluate_models.py $dest_folder "$2-$remote_ip"
+        python3 evaluate_models.py $dest_folder "$2-$remote_ip"
     done

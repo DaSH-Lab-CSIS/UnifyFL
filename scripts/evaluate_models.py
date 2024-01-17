@@ -1,10 +1,10 @@
 import os
 from torch.utils.data import DataLoader
 import csv
-import sys
 import torch
 import csv
-from ..models.cifar import CIFAR10Model
+import sys
+from models.cifar import CIFAR10Model
 
 model=CIFAR10Model.create_model()
 local_records=[]

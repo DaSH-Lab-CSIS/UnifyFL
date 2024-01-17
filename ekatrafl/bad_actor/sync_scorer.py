@@ -52,39 +52,39 @@ with open(sys.argv[1]) as f:
     )(
         config
     )
-    model = models[workload]
-    scorer = scorers[scoring]
+    # model = models[workload]
+    # scorer = scorers[scoring]
 
-logger.info(f"Model: {model.__name__}")
-logger.info(f"Scorer: {scorer.__name__}")
+# logger.info(f"Model: {model.__name__}")
+# logger.info(f"Scorer: {scorer.__name__}")
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = account
 
 
-nn_model = models[workload]()
+# nn_model = models[workload]()
 # print(nn_model)
 
 
-def score_function(models, testloader: DataLoader):
-    if scoring == "accuracy":
-        q = []
-        for model_dict in models:
-            weights = parameters_to_ndarrays(model_dict)
-            set_parameters(nn_model, weights)
-            q.append(scorer(nn_model, testloader))
-        return q
-    elif scoring == "multi_krum":
-        return scorer(models)
+# def score_function(models, testloader: DataLoader):
+#     if scoring == "accuracy":
+#         q = []
+#         for model_dict in models:
+#             weights = parameters_to_ndarrays(model_dict)
+#             set_parameters(nn_model, weights)
+#             q.append(scorer(nn_model, testloader))
+#         return q
+#     elif scoring == "multi_krum":
+#         return scorer(models)
 
 
-testset = model.get_testset()
-testloader = DataLoader(
-    testset,
-    # Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
-    batch_size=64,
-)
+# testset = model.get_testset()
+# testloader = DataLoader(
+#     testset,
+#     # Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
+#     batch_size=64,
+# )
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
 sync_contract = create_sync_contract(w3, sync_contract_address)
@@ -93,8 +93,9 @@ sync_contract = create_sync_contract(w3, sync_contract_address)
 async def score_model(round: int, cids: str):
     for cid in cids:
         time.sleep(5)
-        logger.info(f"model: {cid} -> score: {(score[1]):>0.1f}")
-        sync_contract.functions.submitScore(round, cid, random.randint(0,100)).transact()
+        random_score = random.randint(0,100)
+        logger.info(f"model: {cid} -> score: {(random_score):>0.1f}")
+        sync_contract.functions.submitScore(round, cid, random_score).transact()
     logger.info(f"Model scores submitted to contract")
 
 

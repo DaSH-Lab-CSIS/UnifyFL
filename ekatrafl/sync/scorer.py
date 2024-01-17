@@ -99,7 +99,7 @@ async def score_model(round: int, cids: str):
     ):
         # score is now a tuple of loss and accuracy
         # print(score)
-        logger.info(f"model: {cid} -> score: {(score[1]):>0.1f}")
+        logger.info(f"model: {cid} -> score: {(score[1] * 100):>0.1f}")
         sync_contract.functions.submitScore(round, cid, int(score[1] * 100)).transact()
     logger.info(f"Model scores submitted to contract")
 

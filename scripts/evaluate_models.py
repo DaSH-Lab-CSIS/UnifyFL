@@ -6,7 +6,9 @@ import csv
 import sys
 from models.cifar import CIFAR10Model
 
-model=CIFAR10Model.create_model()
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+model=CIFAR10Model().to(DEVICE)
 local_records=[]
 global_records=[]
 
@@ -25,10 +27,10 @@ def list_files(dir_path):
     return res
 
 files = sorted(list_files(sys.argv[1]))
-testset = model.create_testset()
-testloader = DataLoader(testset, batch_size=128)
+testset = model.get_testset()
+testloader = DataLoader(testset, batch_size=32)
 for i in files:
-    model.load_state_dict(torch.load(i))
+    model.load_state_dict(torch.load(f"{sys.argv[1]}/{i}"))
     accuracy, loss = model.test_model(testloader)
     if i.split("-")[-1]=="local.pt":
         local_records.append([i[0],"-".join(i[0:5]),accuracy,loss])

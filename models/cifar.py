@@ -15,8 +15,8 @@ from tqdm import tqdm
 # #############################################################################
 
 warnings.filterwarnings("ignore", category=UserWarning)
-# DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-DEVICE = "cpu"
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# DEVICE = "cpu"
 
 
 class CIFAR10Model(nn.Module):
@@ -82,7 +82,7 @@ class CIFAR10Model(nn.Module):
 
 
 def main():
-    # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # DEVICE = "cpu"
     print("Centralized PyTorch training")
     print("Load data")

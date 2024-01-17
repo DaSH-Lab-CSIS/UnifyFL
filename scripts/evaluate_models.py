@@ -31,11 +31,11 @@ testset = model.get_testset()
 testloader = DataLoader(testset, batch_size=32)
 for i in files:
     model.load_state_dict(torch.load(f"{sys.argv[1]}/{i}"))
-    accuracy, loss = model.test_model(testloader)
+    loss, accuracy = model.test_model(testloader)
     if i.split("-")[-1]=="local.pt":
-        local_records.append([i[0],"-".join(i[0:5]),accuracy,loss])
+        local_records.append([i[0],i[0:14],accuracy,loss])
     else:
-        global_records.append([i[0],"-".join(i[0:5]),accuracy,loss])
+        global_records.append([i[0],i[0:14],accuracy,loss])
 
 file1=sys.argv[2]+"_local.csv"
 file2=sys.argv[2]+"_global.csv"

@@ -7,18 +7,18 @@ import socket
 import sys
 from time import sleep
 from operator import itemgetter
-from flwr.common import parameters_to_ndarrays
-import torch
+# from flwr.common import parameters_to_ndarrays
+# import torch
 import wandb
-from torch.utils.data import DataLoader, Subset
+# from torch.utils.data import DataLoader, Subset
 from web3 import Web3
 import random
 
 from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_async_contract, create_reg_contract
 
-from ekatrafl.base.ipfs import load_model_ipfs
-from ekatrafl.base.model import accuracy_scorer, models, scorers, set_parameters
+# from ekatrafl.base.ipfs import load_model_ipfs
+# from ekatrafl.base.model import accuracy_scorer, models, scorers, set_parameters
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -54,8 +54,8 @@ with open(sys.argv[1]) as f:
     )
 
 wandb.login()
-logger.info(f"Model: {model.__name__}")
-logger.info(f"Scorer: {scorer.__name__}")
+# logger.info(f"Model: {model.__name__}")
+# logger.info(f"Scorer: {scorer.__name__}")
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
@@ -66,7 +66,7 @@ async_contract = create_async_contract(w3, async_contract_address)
 
 
 async def score_model(trainer: str, cid: str):
-    model = models[workload]()
+    # model = models[workload]()
     logger.info(f"Model recevied to score with CID: {cid}")
     async_contract.functions.submitScore(cid, random.randint(0,100)).transact()
     logger.info(f"Model scores submitted to contract")

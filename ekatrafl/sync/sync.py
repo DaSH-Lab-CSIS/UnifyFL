@@ -186,7 +186,7 @@ class SyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
-        try;
+        try:
             sync_contract.functions.submitModel(cid).transact()
         except:
             sleep(5)

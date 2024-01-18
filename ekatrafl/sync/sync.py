@@ -141,7 +141,7 @@ class SyncServer(Server):
             lambda x: x[0] != "",
             zip(*sync_contract.functions.getLatestModelsWithScores().call()),
         )
-        
+
         selected_models = pick_selected_model(global_models, aggregation_policy, scoring_policy, int(k))
 
 
@@ -186,7 +186,10 @@ class SyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
-        sync_contract.functions.submitModel(cid).transact()
+        try;
+            sync_contract.functions.submitModel(cid).transact()
+        except:
+            sleep(5)
         logger.info("Model submitted to contarct")
         logger.info(f"Round {self.round_id} ended")
 

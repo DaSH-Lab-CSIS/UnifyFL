@@ -158,7 +158,7 @@ class SyncServer(Server):
 
             self.set_parameters(weight_arrays)
 
-            cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
+            cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
             # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
@@ -177,7 +177,7 @@ class SyncServer(Server):
         weights = parameters_to_ndarrays(parameters)
         self.set_parameters(weights)
         self.round_ongoing = False
-        cur_time = str(datetime.now().strftime("%d-%H-%M-%S") + ".pt")
+        cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
         # TODO: add host to save path
         torch.save(
             self.model.state_dict(),

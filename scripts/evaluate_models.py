@@ -21,7 +21,7 @@ local_files = [f for f in files if f.split("-")[-1] == "local.pt"]
 global_files = [f for f in files if f.split("-")[-1] == "global.pt"]
 
 
-def evaluate_model(filename: str) -> List[float, float]:
+def evaluate_model(filename: str) -> List[float]:
     model.load_state_dict(torch.load(os.path.join(sys.argv[1], filename)))
     loss, accuracy = model.test_model(testloader)
     return [accuracy * 100, loss]

@@ -33,9 +33,9 @@ for i in files:
     model.load_state_dict(torch.load(f"{sys.argv[1]}/{i}"))
     loss, accuracy = model.test_model(testloader)
     if i.split("-")[-1]=="local.pt":
-        local_records.append([i.split("-")[0],"".join(i.split("-")[1:5])[:-3],accuracy,loss])
+        local_records.append([i.split("-")[0],"-".join(i.split("-")[1:5]),accuracy,loss])
     else:
-        global_records.append([i.split("-")[0],"".join(i.split("-")[1:5])[:-3],accuracy,loss])
+        global_records.append([i.split("-")[0],"-".join(i.split("-")[1:5]),accuracy,loss])
 
 file1=sys.argv[1]+"/"+sys.argv[2]+"_local.csv"
 file2=sys.argv[1]+"/"+sys.argv[2]+"_global.csv"

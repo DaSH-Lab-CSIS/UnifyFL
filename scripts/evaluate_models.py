@@ -11,7 +11,7 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 model = CIFAR10Model().to(DEVICE)
 testset = model.get_testset()
-testloader = DataLoader(testset, batch_size=32)
+testloader = DataLoader(testset, batch_size=64)
 
 files = sorted(
     [f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1], f))]

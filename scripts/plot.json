@@ -1,0 +1,16 @@
+{
+    "name":"plot of acc vs loss",
+    "time_setting": "",
+    "type": "time",
+
+    "lines": [
+        {
+            "name":"async agg4",
+            "file":"blagbladsgsd.csv"
+        },
+        {
+            "name":"sync agg4",
+            "file":"aerewrseg.csv"
+        }
+    ]
+}

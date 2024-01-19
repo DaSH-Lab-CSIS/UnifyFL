@@ -124,6 +124,7 @@ class AsyncServer(Server):
         super().__init__(*args, **kwargs)
         self.round_ongoing = False
         self.round_id = 0
+        self.cid = None
         self.model = model()
         registration_contract.functions.registerNode("trainer").transact()
         # threading.Thread(target=self.run_rounds).start()
@@ -153,7 +154,7 @@ class AsyncServer(Server):
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
         selected_models = pick_selected_model(
-            global_models, aggregation_policy, scoring_policy, int(k)
+            global_models, aggregation_policy, scoring_policy, int(k), self.cid
         )
 
         if len(selected_models) > 0:
@@ -214,6 +215,7 @@ class AsyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
+        self.cid = cid
         while True:
             try:
                 async_contract.functions.submitModel(cid).transact()
@@ -249,7 +251,6 @@ def main():
         name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
     )
     AsyncServer(server_address=flwr_server_address, strategy=strategy)
-
 
 
 if __name__ == "__main__":

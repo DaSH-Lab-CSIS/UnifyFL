@@ -24,7 +24,7 @@ global_files = [f for f in files if f.split("-")[-1] == "global.pt"]
 def evaluate_model(filename: str) -> List[float, float]:
     model.load_state_dict(torch.load(os.path.join(sys.argv[1], filename)))
     loss, accuracy = model.test_model(testloader)
-    return [accuracy, loss]
+    return [accuracy * 100, loss]
 
 
 with open(os.path.join(sys.argv[1], sys.argv[2] + "_local.csv"), "a+") as f:

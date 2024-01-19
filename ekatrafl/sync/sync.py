@@ -15,6 +15,7 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 from ekatrafl.base.custom_server import Server
+import wandb
 
 from ekatrafl.base.ipfs import load_models, save_model_ipfs
 import flwr as fl
@@ -45,7 +46,8 @@ with open(sys.argv[1]) as f:
         ipfs_host,
         aggregation_policy,
         scoring_policy,
-        k
+        k, 
+        experiment_id
     ) = itemgetter(
         "workload",
         "geth_endpoint",
@@ -59,7 +61,8 @@ with open(sys.argv[1]) as f:
         "ipfs_host",
         "aggregation_policy",
         "scoring_policy",
-        "k"
+        "k",
+        "experiment_id"
     )(
         config
     )
@@ -204,6 +207,20 @@ strategy = fl.server.strategy.FedAvg(
 
 def main():
     """Start server and train model."""
+    import socket
+    import getpass
+    wandb.login()
+    wandb.init(
+        project='ekatrafl',
+        config={
+            "workload": "cifar10",
+            "aggregation_policy": aggregation_policy,
+            "scoring_policy": scoring_policy,
+            "k": k,
+        },
+        group=experiment_id,
+        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-agg"
+    )
     SyncServer(server_address=flwr_server_address, strategy=strategy)
 
 

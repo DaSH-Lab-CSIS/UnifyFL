@@ -152,6 +152,8 @@ class AsyncServer(Server):
             lambda x: x[0] != "",
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
+        if(len(list(global_models))) == 0:
+            return
         selected_models = pick_selected_model(
             global_models, aggregation_policy, scoring_policy, int(k)
         )

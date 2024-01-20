@@ -84,7 +84,7 @@ sync_contract = create_sync_contract(w3, sync_contract_address)
 
 
 time_start = str(datetime.now().strftime("%d-%H-%M-%S"))
-os.makedirs(f"save/sync/{workload}/{time_start}", exist_ok=True)
+os.makedirs(f"save/sync/{workload}/{experiment_id}", exist_ok=True)
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
@@ -144,6 +144,8 @@ class SyncServer(Server):
             lambda x: x[0] != "",
             zip(*sync_contract.functions.getLatestModelsWithScores().call()),
         )
+        if len(list(global_models)) == 0:
+            return
 
         selected_models = pick_selected_model(
             global_models, aggregation_policy, scoring_policy, int(k)

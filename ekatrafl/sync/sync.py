@@ -46,8 +46,8 @@ with open(sys.argv[1]) as f:
         ipfs_host,
         aggregation_policy,
         scoring_policy,
-        k, 
-        experiment_id
+        k,
+        experiment_id,
     ) = itemgetter(
         "workload",
         "geth_endpoint",
@@ -62,7 +62,7 @@ with open(sys.argv[1]) as f:
         "aggregation_policy",
         "scoring_policy",
         "k",
-        "experiment_id"
+        "experiment_id",
     )(
         config
     )
@@ -145,8 +145,9 @@ class SyncServer(Server):
             zip(*sync_contract.functions.getLatestModelsWithScores().call()),
         )
 
-        selected_models = pick_selected_model(global_models, aggregation_policy, scoring_policy, int(k))
-
+        selected_models = pick_selected_model(
+            global_models, aggregation_policy, scoring_policy, int(k)
+        )
 
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")
@@ -165,7 +166,7 @@ class SyncServer(Server):
             # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
-                f"save/sync/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-global.pt",
+                f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
 
     def single_round(self):
@@ -184,7 +185,7 @@ class SyncServer(Server):
         # TODO: add host to save path
         torch.save(
             self.model.state_dict(),
-            f"save/sync/{workload}/{time_start}/{self.round_id:02d}-{cur_time}-local.pt",
+            f"save/sync/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
@@ -209,9 +210,10 @@ def main():
     """Start server and train model."""
     import socket
     import getpass
+
     wandb.login()
     wandb.init(
-        project='ekatrafl',
+        project="ekatrafl",
         config={
             "workload": "cifar10",
             "aggregation_policy": aggregation_policy,
@@ -219,7 +221,7 @@ def main():
             "k": k,
         },
         group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-agg"
+        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-agg",
     )
     SyncServer(server_address=flwr_server_address, strategy=strategy)
 

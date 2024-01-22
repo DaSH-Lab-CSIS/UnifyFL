@@ -68,7 +68,9 @@ class ClientServer(BaseClient):
         parameters = self.server.start_round()
         if parameters is None:
             print("Error")
+            return
         else:
+            parameters, total = parameters
             weights = parameters_to_ndarrays(parameters)
             self.set_parameters(weights)
         cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
@@ -77,7 +79,7 @@ class ClientServer(BaseClient):
             f"save/baseline/{workload}/{experiment_id}/{self.round}-{cur_time}-local.pt",
         )
         self.round += 1
-        return self.get_parameters(config={}), len(self.trainloader.dataset), {}
+        return self.get_parameters(config={}), total, {}
 
 
 def main():

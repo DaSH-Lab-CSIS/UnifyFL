@@ -152,7 +152,7 @@ class AsyncServer(Server):
             lambda x: x[0] != "",
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
-        if(len(list(global_models))) == 0:
+        if (len(list(global_models))) == 0:
             return
         selected_models = pick_selected_model(
             global_models, aggregation_policy, scoring_policy, int(k)
@@ -204,6 +204,7 @@ class AsyncServer(Server):
         if parameters is None:
             print("Error")
             return
+        parameters = parameters[0]
         weights = parameters_to_ndarrays(parameters)
         self.set_parameters(weights)
         self.round_ongoing = False
@@ -251,7 +252,6 @@ def main():
         name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
     )
     AsyncServer(server_address=flwr_server_address, strategy=strategy)
-
 
 
 if __name__ == "__main__":

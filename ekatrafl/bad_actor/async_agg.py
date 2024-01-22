@@ -5,6 +5,7 @@ import json
 from operator import itemgetter
 import socket
 from ekatrafl.base.policies import pick_selected_model
+
 # from flwr.common import parameters_to_ndarrays
 
 from datetime import datetime
@@ -20,6 +21,7 @@ from ekatrafl.base.contract import create_reg_contract, create_async_contract
 from ekatrafl.base.custom_server import Server
 
 from ekatrafl.base.ipfs import load_models, save_model_ipfs
+
 # import flwr as fl
 # from flwr.server.strategy.aggregate import aggregate
 from ekatrafl.base.model import models
@@ -181,7 +183,7 @@ class AsyncServer(Server):
             # weight_arrays = aggregate(models)
             # print(weight_arrays, "weight arrays")
 
-            #self.set_parameters(weight_arrays)
+            # self.set_parameters(weight_arrays)
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
             # TODO: add host to save path
@@ -204,7 +206,7 @@ class AsyncServer(Server):
             print("Error")
             return
         # weights = parameters_to_ndarrays(parameters)
-        self.set_parameters(random.randint(0,100))
+        self.set_parameters(random.randint(0, 100))
         self.round_ongoing = False
         cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
         # TODO: add host to save path
@@ -213,6 +215,7 @@ class AsyncServer(Server):
             f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
+        parameters = parameters[0]
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
         while True:
@@ -250,7 +253,6 @@ def main():
         name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
     )
     # AsyncServer(server_address=flwr_server_address, strategy=strategy)
-
 
 
 if __name__ == "__main__":

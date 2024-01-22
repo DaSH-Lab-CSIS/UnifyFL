@@ -1,6 +1,6 @@
 from logging import INFO
 import sys
-from typing import Optional
+from typing import Optional, Tuple
 
 import flwr as fl
 from flwr.common.address import parse_address
@@ -93,10 +93,13 @@ class Server(fl.server.Server):
 
         event(EventType.START_SERVER_LEAVE)
 
-    def start_round(self) -> Optional[Parameters]:
+    def start_round(self) -> Optional[Tuple[Parameters, int]]:
         res_fit = self.server.fit_round(self.num_rounds, self.config.round_timeout)
         if res_fit is not None:
-            parameters_prime, _, _ = res_fit  # fit_metrics_aggregated
+            parameters_prime, metrics, (res, fail) = res_fit  # fit_metrics_aggregated
             # print(type(parameters_prime))
+            total = 0
+            for i in res:
+                total += i[1].num_examples
             self.server.parameters = parameters_prime
-            return parameters_prime
+            return parameters_prime, total

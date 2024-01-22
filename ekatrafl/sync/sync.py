@@ -179,6 +179,7 @@ class SyncServer(Server):
         if parameters is None:
             print("Error")
             return
+        parameters = parameters[0]
         weights = parameters_to_ndarrays(parameters)
         self.set_parameters(weights)
         self.round_ongoing = False

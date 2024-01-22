@@ -4,6 +4,7 @@ from datetime import datetime
 import getpass
 import socket
 from typing import Dict, Optional, Tuple
+import os
 
 import flwr as fl
 from flwr.common.typing import Scalar
@@ -64,6 +65,9 @@ def set_weights(model, parameters):
     params_dict = zip(keys, parameters)
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     model.load_state_dict(state_dict, strict=False)
+
+
+os.makedirs(f"save/baseline/{workload}/{experiment_id}", exist_ok=True)
 
 
 def evaluate(

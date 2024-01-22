@@ -11,6 +11,7 @@ import flwr as fl
 import sys
 import json
 import wandb
+import os
 
 # Login to wandb
 wandb.login()
@@ -24,7 +25,6 @@ logging.basicConfig(
     format="%(levelname)s:     %(message)s - %(asctime)s",
 )
 logger = logging.getLogger(__name__)
-
 with open(sys.argv[1]) as f:
     config = json.load(f)
     (
@@ -46,6 +46,8 @@ with open(sys.argv[1]) as f:
     )(
         config
     )
+
+os.makedirs(f"save/sync/{workload}/{experiment_id}", exist_ok=True)
 
 
 class ClientServer(BaseClient):

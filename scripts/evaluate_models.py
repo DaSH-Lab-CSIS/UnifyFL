@@ -19,6 +19,7 @@ files = sorted(
 
 local_files = [f for f in files if f.split("-")[-1] == "local.pt"]
 global_files = [f for f in files if f.split("-")[-1] == "global.pt"]
+print(local_files)
 
 
 def evaluate_model(filename: str) -> List[float]:

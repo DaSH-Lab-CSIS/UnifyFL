@@ -1,16 +1,21 @@
 {
-    "name":"plot of acc vs loss",
+    "name":"sync_4",
     "time_setting": "",
-    "type": "time",
+    "type": "round",
 
     "lines": [
         {
-            "name":"async agg4",
-            "file":"blagbladsgsd.csv"
+            "name": "dashlab2",
+            "file": "../results/async/cifar10/"
+    },
+        {
+            "name": "dashlab3",
+            "file": "../results/sync/cifar10/9d8bcba0-b14a-4046-96e3-9db07c0ec18f/10.8.1.48_local.csv"
         },
         {
-            "name":"sync agg4",
-            "file":"aerewrseg.csv"
+            "name": "dashlab4",
+            "file": "../results/sync/cifar10/9d8bcba0-b14a-4046-96e3-9db07c0ec18f/10.8.1.44_local.csv"
         }
+
     ]
 }

@@ -20,11 +20,10 @@ from ekatrafl.base.model import models
 wandb.login()
 
 
-# Define Flower client
-class FlowerClient(fl.client.NumPyClient):
+class BaseClient(fl.client.NumPyClient):
     def __init__(self, model, log=False):
         self.model = model()
-        self.trainloader, self.testloader = model.load_data()
+        # self.trainloader, self.testloader = model.load_data()
         self.log = log
         super().__init__()
 
@@ -36,6 +35,13 @@ class FlowerClient(fl.client.NumPyClient):
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
+
+
+# Define Flower client
+class FlowerClient(BaseClient):
+    def __init__(self, model, log=False):
+        self.trainloader, self.testloader = model.load_data()
+        super().__init__(model, log)
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)

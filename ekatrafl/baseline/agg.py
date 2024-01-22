@@ -6,7 +6,7 @@ import socket
 from flwr.common import parameters_to_ndarrays
 import torch
 from ekatrafl.base.custom_server import Server
-from ekatrafl.base.client import FlowerClient
+from ekatrafl.base.client import BaseClient
 import flwr as fl
 import sys
 import json
@@ -48,7 +48,7 @@ with open(sys.argv[1]) as f:
     )
 
 
-class ClientServer(FlowerClient):
+class ClientServer(BaseClient):
     def __init__(self, address: str = "0.0.0.0:5000") -> None:
         super().__init__(models[workload])
         strategy = fl.server.strategy.FedAvg(

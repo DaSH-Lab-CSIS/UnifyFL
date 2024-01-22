@@ -1,0 +1,16 @@
+{
+    "num_rounds": 100,
+    "workload": "cifar10",
+    "flwr_min_fit_clients": 3,
+    "flwr_min_available_clients": 3,
+    "flwr_min_evaluate_clients": 3,
+    "flwr_super_address": "localhost:8080",
+    "flwr_sub_address": "localhost:5000",
+    "flwr_server_address": "localhost:8080",
+    "experiment_id": "81c0fd04-7937-4e7d-a689-4eef93f8e60a",
+    "registration_contract_address": "hi",
+    "contract_address": "baseline",
+    "aggregation_policy": "blah",
+    "scoring_policy": "blah",
+    "k": "balh"
+}

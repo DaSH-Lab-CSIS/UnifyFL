@@ -54,7 +54,7 @@ with open(sys.argv[1]) as f:
 
 model = models[workload]()
 
-trainloader, testloader = model.load_data()
+# trainloader, testloader = model.load_data()
 
 # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -101,6 +101,7 @@ strategy = fl.server.strategy.FedAvg(
     min_fit_clients=flwr_min_fit_clients,
     min_available_clients=flwr_min_available_clients,
     min_evaluate_clients=flwr_min_evaluate_clients,
+        evaluate_fn=evaluate,
 )
 
 
@@ -109,7 +110,6 @@ def main():
         server_address=flwr_server_address,
         config=fl.server.ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
-        evalute_fn=evaluate,
     )
 
     wandb.init(

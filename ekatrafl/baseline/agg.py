@@ -1,9 +1,10 @@
+from datetime import datetime
 import getpass
 import logging
 from operator import itemgetter
 import socket
-import time
 from flwr.common import parameters_to_ndarrays
+import torch
 from ekatrafl.base.custom_server import Server
 from ekatrafl.base.client import FlowerClient
 import flwr as fl
@@ -56,6 +57,7 @@ class ClientServer(FlowerClient):
             min_evaluate_clients=flwr_min_evaluate_clients,
         )
         self.server = Server(server_address=address, strategy=strategy)
+        self.round = 0
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
@@ -67,6 +69,12 @@ class ClientServer(FlowerClient):
         else:
             weights = parameters_to_ndarrays(parameters)
             self.set_parameters(weights)
+        cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
+        torch.save(
+            self.model.state_dict(),
+            f"save/baseline/{workload}/{experiment_id}/{self.round}-{cur_time}-local.pt",
+        )
+        self.round += 1
         return self.get_parameters(config={}), len(self.trainloader.dataset), {}
 
 
@@ -81,7 +89,7 @@ def main():
             "workload": "cifar10",
         },
         group=experiment_id,
-        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-baseline-agg",
+        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-baseline-agg",
     )
 
 

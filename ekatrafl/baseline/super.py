@@ -1,9 +1,12 @@
 """Flower server example."""
 from collections import OrderedDict
+from datetime import datetime
 import getpass
 import socket
+from typing import Dict, Optional, Tuple
 
 import flwr as fl
+from flwr.common.typing import Scalar
 import torch
 from ekatrafl.base.model import models
 
@@ -12,6 +15,8 @@ from operator import itemgetter
 import sys
 import json
 import wandb
+
+from models.cifar import CIFAR10Model
 
 # Login to wandb
 wandb.login()
@@ -61,17 +66,23 @@ def set_weights(model, parameters):
     model.load_state_dict(state_dict, strict=False)
 
 
-# def evaluate(
-#     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
-# ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
-#     model = cifar.Net()
-#
-#     set_weights(model, parameters)
-#     model.to(DEVICE)
-#
-#     loss, accuracy = cifar.test(model, testloader, device=DEVICE)
-#     print(loss, accuracy)
-#     return loss, {"accuracy": accuracy}
+def evaluate(
+    server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
+) -> Optional[Tuple[float, Dict[str, Scalar]]]:
+    model = CIFAR10Model()
+
+    set_weights(model, parameters)
+    # model.to(DEVICE)
+
+    loss, accuracy = model.test(model, testloader)
+    cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
+    torch.save(
+        model.state_dict(),
+        f"save/baseline/{workload}/{experiment_id}/{server_round}-{cur_time}-global.pt",
+    )
+    return loss, {"accuracy": accuracy}
+
+
 #
 
 
@@ -98,6 +109,7 @@ def main():
         server_address=flwr_server_address,
         config=fl.server.ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
+        evalute_fn=evaluate,
     )
 
     wandb.init(
@@ -106,7 +118,7 @@ def main():
             "workload": "cifar10",
         },
         group=experiment_id,
-        name=f"{socket.gethostname() if socket.hostname() != 'raspberrypi' else getpass.getuser()}-super-agg",
+        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-super-agg",
     )
 
 

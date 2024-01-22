@@ -54,7 +54,7 @@ with open(sys.argv[1]) as f:
 
 model = models[workload]()
 
-# trainloader, testloader = model.load_data()
+_, testloader = model.load_data()
 
 # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -74,7 +74,7 @@ def evaluate(
     set_weights(model, parameters)
     # model.to(DEVICE)
 
-    loss, accuracy = model.test(model, testloader)
+    loss, accuracy = model.test_model(testloader)
     cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
     torch.save(
         model.state_dict(),
@@ -101,7 +101,7 @@ strategy = fl.server.strategy.FedAvg(
     min_fit_clients=flwr_min_fit_clients,
     min_available_clients=flwr_min_available_clients,
     min_evaluate_clients=flwr_min_evaluate_clients,
-        evaluate_fn=evaluate,
+    evaluate_fn=evaluate,
 )
 
 

@@ -47,7 +47,7 @@ with open(sys.argv[1]) as f:
         config
     )
 
-os.makedirs(f"save/sync/{workload}/{experiment_id}", exist_ok=True)
+os.makedirs(f"save/baseline/{workload}/{experiment_id}", exist_ok=True)
 
 
 class ClientServer(BaseClient):

@@ -2,7 +2,13 @@ import random
 from typing import List, Optional
 
 
-def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: str, k: Optional[int] = None):
+def pick_selected_model(
+    global_models,
+    aggregation_policy: str,
+    scoring_policy: str,
+    k: Optional[int] = None,
+    mine: Optional[str] = None,
+):
     assign_score_dict = {
         key.__name__: key
         for key in [
@@ -42,9 +48,9 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
         case "pick_all":
             return list(map(lambda x: x[0], global_models))
         case "pick_above_mean":
-            mean_score = sum(list(map(lambda x: assign_score(x[1]), global_models))) / len(
-                global_models
-            )
+            mean_score = sum(
+                list(map(lambda x: assign_score(x[1]), global_models))
+            ) / len(global_models)
 
             return list(
                 map(
@@ -65,10 +71,11 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
                 )
             )
         case "pick_self":
-            return []
+            return [mine]
         case "pick_above_self":
-            self_score = assign_score(list(filter(lambda x: x[0] == self, global_models))[1])
-
+            self_score = assign_score(
+                list(filter(lambda x: x[0] == mine, global_models))[1]
+            )
             return list(
                 map(
                     lambda x: x[0],
@@ -78,6 +85,7 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
                     ),
                 )
             )
+
 
 # Score assignment helpers
 def assign_score_min(scores: List[int]):

@@ -168,7 +168,7 @@ class SyncServer(Server):
             # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
-                f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
+                f"save/sync/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
 
     def single_round(self):

@@ -111,6 +111,7 @@ class SyncServer(Server):
         self.round_ongoing = False
         self.model = model()
         self.round_id = 0
+        self.cid = None
         registration_contract.functions.registerNode("trainer").transact()
         # self.single_round()
         # removed threading
@@ -147,7 +148,7 @@ class SyncServer(Server):
             return
 
         selected_models = pick_selected_model(
-            global_models, aggregation_policy, scoring_policy, int(k)
+            global_models, aggregation_policy, scoring_policy, int(k), self.cid
         )
 
         if len(selected_models) > 0:
@@ -192,6 +193,7 @@ class SyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
+        self.cid = cid
         try:
             sync_contract.functions.submitModel(cid).transact()
         except:

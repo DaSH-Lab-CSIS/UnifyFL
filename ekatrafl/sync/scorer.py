@@ -7,6 +7,7 @@ import socket
 import sys
 import time
 from operator import itemgetter
+import async_timeout
 
 import torch
 

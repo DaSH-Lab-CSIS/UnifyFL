@@ -25,7 +25,8 @@ async def save_model_ipfs(state_dict: Parameters, ipfs_host: str) -> str:
 
 async def load_model_ipfs(cid: str, ipfs_host: str) -> Parameters:
     client = aioipfs.AsyncIPFS(maddr=ipfs_host)
-    await client.get(path=cid, dstdir="download")
+    async with aync_timeout.timeout(10):
+            await client.get(path=cid, dstdir="download")
     await client.close()
     # return torch.load(f"download/{cid}")
     # return np.load(f"download/{cid}", allow_pickle=True)

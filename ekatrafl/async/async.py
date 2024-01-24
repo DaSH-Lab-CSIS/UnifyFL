@@ -172,17 +172,18 @@ class AsyncServer(Server):
             # for param in param_list:
             #     print(type(param), "param")
             models = list(map(parameters_to_ndarrays, param_list))
-            # for model in models:
-            #     print(type(model), "model")
+            for model in models:
+                print(type(model), "model")
 
             # TODO: we are giving equal weightage for model aggregation
-            # print(models, "models")
+            print(models, "models")
             models = list(zip(models, [1] * len(models)))
-            # print(models, "models")
+            print(models, "models")
             weight_arrays = aggregate(models)
-            # print(weight_arrays, "weight arrays")
+            print(weight_arrays, "weight arrays")
 
             self.set_parameters(weight_arrays)
+            self.server.parameters = weight_arrays
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
             # TODO: add host to save path

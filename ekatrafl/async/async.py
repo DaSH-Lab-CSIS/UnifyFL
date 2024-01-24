@@ -170,21 +170,30 @@ class AsyncServer(Server):
             #         loop.run_until_complete(load_models(selected_models, ipfs_host)),
             #     )
             # )
-            param_list = loop.run_until_complete(
+            state_dicts = loop.run_until_complete(
                 load_models(selected_models, ipfs_host)
+            )
+            param_list = list(
+                map(
+                    ndarrays_to_parameters,
+                    [
+                        [val.cpu().numpy() for _, val in state_dict.items()]
+                        for state_dict in state_dicts
+                    ],
+                )
             )
             # for param in param_list:
             #     print(type(param), "param")
             models = list(map(parameters_to_ndarrays, param_list))
-            for model in models:
-                print(type(model), "model")
+            # for model in models:
+            #     print(type(model), "model")
 
             # TODO: we are giving equal weightage for model aggregation
-            print(models, "models")
+            # print(models, "models")
             models = list(zip(models, [1] * len(models)))
-            print(models, "models")
+            # print(models, "models")
             weight_arrays = aggregate(models)
-            print(weight_arrays, "weight arrays")
+            # print(weight_arrays, "weight arrays")
 
             self.set_parameters(weight_arrays)
             self.server.parameters = ndarrays_to_parameters(weight_arrays)
@@ -221,7 +230,7 @@ class AsyncServer(Server):
             f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
-        cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
+        cid = asyncio.run(save_model_ipfs(self.model.state_dict(), ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
         self.cid = cid
         while True:

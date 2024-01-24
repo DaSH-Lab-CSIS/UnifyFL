@@ -94,6 +94,7 @@ class Server(fl.server.Server):
         event(EventType.START_SERVER_LEAVE)
 
     def start_round(self) -> Optional[Tuple[Parameters, int]]:
+        self.num_rounds += 1
         res_fit = self.server.fit_round(self.num_rounds, self.config.round_timeout)
         if res_fit is not None:
             parameters_prime, metrics, (res, fail) = res_fit  # fit_metrics_aggregated

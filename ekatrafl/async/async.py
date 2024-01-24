@@ -180,11 +180,11 @@ class AsyncServer(Server):
                 print(type(model), "model")
 
             # TODO: we are giving equal weightage for model aggregation
-            # print(models, "models")
+            print(models, "models")
             models = list(zip(models, [1] * len(models)))
-            # print(models, "models")
+            print(models, "models")
             weight_arrays = aggregate(models)
-            # print(weight_arrays, "weight arrays")
+            print(weight_arrays, "weight arrays")
 
             self.set_parameters(weight_arrays)
             self.server.parameters = ndarrays_to_parameters(weight_arrays)

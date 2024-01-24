@@ -2,7 +2,13 @@ import random
 from typing import List, Optional
 
 
-def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: str, k: Optional[int] = None):
+def pick_selected_model(
+    global_models,
+    aggregation_policy: str,
+    scoring_policy: str,
+    k: Optional[int] = None,
+    mine: Optional[str] = None,
+):
     assign_score_dict = {
         key.__name__: key
         for key in [
@@ -24,7 +30,7 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
         case "pick_top_2":
             return pick_top_k(global_models, 2, assign_score)
         case "pick_random_k":
-            return random.choices(list(map(lambda x: x[0], global_models)), k=k)
+            return pick_random_k(global_models, k)
         case "pick_random_3":
             return pick_random_k(global_models, 3)
         case "pick_random_2":
@@ -42,9 +48,9 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
         case "pick_all":
             return list(map(lambda x: x[0], global_models))
         case "pick_above_mean":
-            mean_score = sum(list(map(lambda x: assign_score(x[1]), global_models))) / len(
-                global_models
-            )
+            mean_score = sum(
+                list(map(lambda x: assign_score(x[1]), global_models))
+            ) / len(global_models)
 
             return list(
                 map(
@@ -65,10 +71,11 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
                 )
             )
         case "pick_self":
-            return []
+            return [mine]
         case "pick_above_self":
-            self_score = assign_score(list(filter(lambda x: x[0] == self, global_models))[1])
-
+            self_score = assign_score(
+                list(filter(lambda x: x[0] == mine, global_models))[1]
+            )
             return list(
                 map(
                     lambda x: x[0],
@@ -78,6 +85,7 @@ def pick_selected_model(global_models, aggregation_policy: str, scoring_policy: 
                     ),
                 )
             )
+
 
 # Score assignment helpers
 def assign_score_min(scores: List[int]):
@@ -109,9 +117,9 @@ def pick_top_k(global_models, k: int, assign_score):
                 map(lambda x: (x[0], assign_score(x[1])), global_models),
                 key=lambda x: x[1],
                 reverse=True,
-            )[:k],
+            )
         )
-    )
+    )[:k]
 
 
 def pick_top_3(global_models, assign_score):
@@ -123,6 +131,8 @@ def pick_top_2(global_models, assign_score):
 
 
 def pick_random_k(global_models, k: int):
+    if len(global_models) < k:
+        return list(map(lambda x: x[0], global_models))
     return random.choices(list(map(lambda x: x[0], global_models)), k=k)
 
 

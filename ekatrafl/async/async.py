@@ -124,6 +124,7 @@ class AsyncServer(Server):
         super().__init__(*args, **kwargs)
         self.round_ongoing = False
         self.round_id = 0
+        self.cid = None
         self.model = model()
         registration_contract.functions.registerNode("trainer").transact()
         # threading.Thread(target=self.run_rounds).start()
@@ -148,14 +149,15 @@ class AsyncServer(Server):
     #         time.sleep(60)
 
     def aggregate_models(self):
-        global_models = filter(
+        global_models = list(filter(
             lambda x: x[0] != "",
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
-        )
+        ))
         if (len(list(global_models))) == 0:
+            print(f"no global models - {self.round_id}")
             return
         selected_models = pick_selected_model(
-            global_models, aggregation_policy, scoring_policy, int(k)
+            global_models, aggregation_policy, scoring_policy, int(k), self.cid
         )
 
         if len(selected_models) > 0:
@@ -191,11 +193,14 @@ class AsyncServer(Server):
                 self.model.state_dict(),
                 f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
+        else:
+            print(f"not aggregating {self.round_id}")
+
 
     def single_round(self):
+        self.round_id += 1
         self.aggregate_models()
         self.round_ongoing = True
-        self.round_id += 1
         if self.round_id >= 100:
             wandb.finish()
             exit()
@@ -218,6 +223,7 @@ class AsyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
+        self.cid = cid
         while True:
             try:
                 async_contract.functions.submitModel(cid).transact()

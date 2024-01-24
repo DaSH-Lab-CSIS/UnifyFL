@@ -25,7 +25,7 @@ async def save_model_ipfs(state_dict, ipfs_host: str) -> str:
     return cid
 
 
-async def load_model_ipfs(cid: str, ipfs_host: str) -> Parameters:
+async def load_model_ipfs(cid: str, ipfs_host: str):
     client = aioipfs.AsyncIPFS(maddr=ipfs_host)
     async with async_timeout.timeout(10):
         await client.get(path=cid, dstdir="download")

@@ -5,7 +5,7 @@ import json
 from operator import itemgetter
 import socket
 from ekatrafl.base.policies import pick_selected_model
-from flwr.common import parameters_to_ndarrays
+from flwr.common import parameters_to_ndarrays, ndarrays_to_parameters
 
 from datetime import datetime
 import logging
@@ -149,10 +149,12 @@ class AsyncServer(Server):
     #         time.sleep(60)
 
     def aggregate_models(self):
-        global_models = list(filter(
-            lambda x: x[0] != "",
-            zip(*async_contract.functions.getLatestModelsWithScores().call()),
-        ))
+        global_models = list(
+            filter(
+                lambda x: x[0] != "",
+                zip(*async_contract.functions.getLatestModelsWithScores().call()),
+            )
+        )
         if (len(list(global_models))) == 0:
             print(f"no global models - {self.round_id}")
             return
@@ -185,7 +187,7 @@ class AsyncServer(Server):
             print(weight_arrays, "weight arrays")
 
             self.set_parameters(weight_arrays)
-            self.server.parameters = weight_arrays
+            self.server.parameters = ndarrays_to_parameters(weight_arrays)
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
             # TODO: add host to save path
@@ -195,7 +197,6 @@ class AsyncServer(Server):
             )
         else:
             print(f"not aggregating {self.round_id}")
-
 
     def single_round(self):
         self.round_id += 1

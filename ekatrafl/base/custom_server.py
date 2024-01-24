@@ -98,8 +98,9 @@ class Server(fl.server.Server):
         if res_fit is not None:
             parameters_prime, metrics, (res, fail) = res_fit  # fit_metrics_aggregated
             # print(type(parameters_prime))
-            total = 0
-            for i in res:
-                total += i[1].num_examples
-            self.server.parameters = parameters_prime
-            return parameters_prime, total
+            if parameters_prime is not None:
+                total = 0
+                for i in res:
+                    total += i[1].num_examples
+                self.server.parameters = parameters_prime
+                return parameters_prime, total

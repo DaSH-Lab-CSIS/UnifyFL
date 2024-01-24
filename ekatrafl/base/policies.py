@@ -30,7 +30,7 @@ def pick_selected_model(
         case "pick_top_2":
             return pick_top_k(global_models, 2, assign_score)
         case "pick_random_k":
-            return random.choices(list(map(lambda x: x[0], global_models)), k=k)
+            return pick_random_k(global_models, k)
         case "pick_random_3":
             return pick_random_k(global_models, 3)
         case "pick_random_2":
@@ -131,6 +131,8 @@ def pick_top_2(global_models, assign_score):
 
 
 def pick_random_k(global_models, k: int):
+    if len(global_models) < k:
+        return list(map(lambda x: x[0], global_models))
     return random.choices(list(map(lambda x: x[0], global_models)), k=k)
 
 

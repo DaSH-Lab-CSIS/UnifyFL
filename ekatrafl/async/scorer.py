@@ -78,19 +78,8 @@ async def score_model(trainer: str, cid: str):
     model = models[workload]()
     logger.info(f"Model recevied to score with CID: {cid}")
     # model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
-    state_dicts = await load_model_ipfs(cid, ipfs_host)
+    model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
 
-    parameters = list(
-        map(
-            ndarrays_to_parameters,
-            [
-                [val.cpu().numpy() for _, val in state_dict.items()]
-                for state_dict in state_dicts
-            ],
-        )
-    )
-    weights = parameters_to_ndarrays(parameters)
-    set_parameters(model, weights)
     logger.info("Model pull from IPFS")
     loss, accuracy = accuracy_scorer(model, testloader)
     logger.info(f"Accuracy: {(accuracy*100):>0.2f}%")

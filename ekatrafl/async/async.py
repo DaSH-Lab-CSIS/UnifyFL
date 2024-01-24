@@ -149,10 +149,10 @@ class AsyncServer(Server):
     #         time.sleep(60)
 
     def aggregate_models(self):
-        global_models = filter(
+        global_models = list(filter(
             lambda x: x[0] != "",
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
-        )
+        ))
         if (len(list(global_models))) == 0:
             print(f"no global models - {self.round_id}")
             return

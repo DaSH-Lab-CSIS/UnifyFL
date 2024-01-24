@@ -197,9 +197,9 @@ class AsyncServer(Server):
 
 
     def single_round(self):
+        self.round_id += 1
         self.aggregate_models()
         self.round_ongoing = True
-        self.round_id += 1
         if self.round_id >= 100:
             wandb.finish()
             exit()

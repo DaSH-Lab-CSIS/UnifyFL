@@ -117,9 +117,9 @@ def pick_top_k(global_models, k: int, assign_score):
                 map(lambda x: (x[0], assign_score(x[1])), global_models),
                 key=lambda x: x[1],
                 reverse=True,
-            )[:k],
+            )
         )
-    )
+    )[:k]
 
 
 def pick_top_3(global_models, assign_score):

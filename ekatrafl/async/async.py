@@ -190,7 +190,6 @@ class AsyncServer(Server):
             self.server.parameters = ndarrays_to_parameters(weight_arrays)
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
-            # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
                 f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
@@ -234,7 +233,7 @@ class AsyncServer(Server):
                 continue
         logger.info("Model submitted to contarct")
         logger.info(f"Round {self.round_id} ended")
-        # TODO: add timer here
+        sleep(5)
         self.single_round()
 
 

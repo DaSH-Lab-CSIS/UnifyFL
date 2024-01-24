@@ -242,7 +242,7 @@ class AsyncServer(Server):
                 continue
         logger.info("Model submitted to contarct")
         logger.info(f"Round {self.round_id} ended")
-        sleep(5)
+        sleep(3)
         self.single_round()
 
 

@@ -154,6 +154,7 @@ class AsyncServer(Server):
             zip(*async_contract.functions.getLatestModelsWithScores().call()),
         )
         if (len(list(global_models))) == 0:
+            print(f"no global models - {self.round_id}")
             return
         selected_models = pick_selected_model(
             global_models, aggregation_policy, scoring_policy, int(k), self.cid
@@ -173,8 +174,8 @@ class AsyncServer(Server):
             # for param in param_list:
             #     print(type(param), "param")
             models = list(map(parameters_to_ndarrays, param_list))
-            # for model in models:
-            #     print(type(model), "model")
+            for model in models:
+                print(type(model), "model")
 
             # TODO: we are giving equal weightage for model aggregation
             # print(models, "models")
@@ -191,6 +192,9 @@ class AsyncServer(Server):
                 self.model.state_dict(),
                 f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
+        else:
+            print(f"not aggregating {self.round_id}")
+
 
     def single_round(self):
         self.aggregate_models()

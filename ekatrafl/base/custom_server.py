@@ -100,6 +100,11 @@ class Server(fl.server.Server):
             parameters_prime, metrics, (res, fail) = res_fit  # fit_metrics_aggregated
             # print(type(parameters_prime))
             if parameters_prime is not None:
+                print("round", self.num_rounds)
+                print("fit metrics", metrics)
+                print("fit res", res)
+                print("fail", fail)
+                print("parameters_prime", parameters_prime)
                 total = 0
                 for i in res:
                     total += i[1].num_examples

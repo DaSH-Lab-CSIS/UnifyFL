@@ -21,6 +21,7 @@ def pick_selected_model(
     }
 
     assign_score = assign_score_dict[scoring_policy]
+    print("type",global_models)
 
     match aggregation_policy:
         case "pick_top_k":
@@ -76,7 +77,7 @@ def pick_selected_model(
             self_score = assign_score(
                 list(filter(lambda x: x[0] == mine, global_models))[1]
             )
-            return list(
+            mmaa =  list(
                 map(
                     lambda x: x[0],
                     filter(
@@ -84,7 +85,11 @@ def pick_selected_model(
                         global_models,
                     ),
                 )
-            )
+            ) 
+            if  len(mmaa) == 0:
+                return [mine]
+            else:
+                return mmaa
 
 
 # Score assignment helpers

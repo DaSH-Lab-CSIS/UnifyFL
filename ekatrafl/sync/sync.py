@@ -140,11 +140,14 @@ class SyncServer(Server):
             sleep(1)
 
     def aggregate_models(self):
-        global_models = filter(
-            lambda x: x[0] != "",
-            zip(*sync_contract.functions.getLatestModelsWithScores().call()),
+        global_models = list(
+            filter(
+                lambda x: x[0] != "",
+                zip(*sync_contract.functions.getLatestModelsWithScores().call()),
+            )
         )
         if len(list(global_models)) == 0:
+            print("no global models")
             return
 
         selected_models = pick_selected_model(
@@ -170,6 +173,8 @@ class SyncServer(Server):
                 self.model.state_dict(),
                 f"save/sync/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
+        else:
+            print("no selected models")
 
     def single_round(self):
         self.aggregate_models()

@@ -4,7 +4,7 @@ import json
 from operator import itemgetter
 from time import sleep
 from ekatrafl.base.policies import pick_selected_model
-from flwr.common import NDArray, parameters_to_ndarrays
+from flwr.common import NDArray, ndarrays_to_parameters, parameters_to_ndarrays
 
 from datetime import datetime
 import logging
@@ -165,6 +165,7 @@ class SyncServer(Server):
             models = list(zip(models, [1] * len(models)))
             weight_arrays = aggregate(models)
 
+            self.server.parameters = ndarrays_to_parameters(weight_arrays)
             self.set_parameters(weight_arrays)
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))

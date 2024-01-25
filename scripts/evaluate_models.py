@@ -17,9 +17,14 @@ files = sorted(
     [f for f in os.listdir(sys.argv[1]) if os.path.isfile(os.path.join(sys.argv[1], f))]
 )
 
-local_files = [f for f in files if f.split("-")[-1] == "local.pt"]
-global_files = [f for f in files if f.split("-")[-1] == "global.pt"]
-print(local_files)
+local_files = sorted(
+    [f for f in files if f.split("-")[-1] == "local.pt"],
+    key=lambda x: int(x.split("-")[0]),
+)
+global_files = sorted(
+    [f for f in files if f.split("-")[-1] == "global.pt"],
+    key=lambda x: int(x.split("-")[0]),
+)
 
 
 def evaluate_model(filename: str) -> List[float]:

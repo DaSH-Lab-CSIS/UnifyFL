@@ -4,6 +4,8 @@ import getpass
 import json
 from operator import itemgetter
 import socket
+
+from flwr.common import ndarrays_to_parameters
 from ekatrafl.base.policies import pick_selected_model
 
 # from flwr.common import parameters_to_ndarrays
@@ -132,81 +134,26 @@ class AsyncServer(Server):
         # threading.Thread(target=self.run_rounds).start()
         self.single_round()
 
-    def set_parameters(self, parameters):
-        print("set param", len(parameters))
-        params_dict = zip(self.model.state_dict().keys(), parameters)
-        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
-        self.model.load_state_dict(
-            state_dict,
-        )
-
-    # run_rounds not needed as we can just start another round after previous round ends
-    # def run_rounds(self):
-    #     # Rounds in async start automatically after the previous round ends
-    #     time.sleep(60)
-    #     while True:
-    #         logger.info(f"Round {self.round_id} started")
-    #         self.single_round()
-    #         logger.info(f"Round {self.round_id-1} ended")
-    #         time.sleep(60)
-
-    def aggregate_models(self):
-        global_models = filter(
-            lambda x: x[0] != "",
-            zip(*async_contract.functions.getLatestModelsWithScores().call()),
-        )
-        selected_models = pick_selected_model(
-            global_models, aggregation_policy, scoring_policy, int(k)
-        )
-
-        if len(selected_models) > 0:
-            logger.info(f"Aggregating models {selected_models}")
-            # models = list(
-            #     map(
-            #         parameters_to_ndarrays,
-            #         loop.run_until_complete(load_models(selected_models, ipfs_host)),
-            #     )
-            # )
-            param_list = loop.run_until_complete(
-                load_models(selected_models, ipfs_host)
-            )
-            # for param in param_list:
-            #     print(type(param), "param")
-            # models = list(map(parameters_to_ndarrays, param_list))
-            # for model in models:
-            #     print(type(model), "model")
-
-            # TODO: we are giving equal weightage for model aggregation
-            # print(models, "models")
-            models = list(zip(models, [1] * len(models)))
-            # print(models, "models")
-            # weight_arrays = aggregate(models)
-            # print(weight_arrays, "weight arrays")
-
-            # self.set_parameters(weight_arrays)
-
-            cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
-            # TODO: add host to save path
-            torch.save(
-                self.model.state_dict(),
-                f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
-            )
-
     def single_round(self):
-        self.aggregate_models()
+        # self.aggregate_models()
         self.round_ongoing = True
         self.round_id += 1
+        self.model = model()
         if self.round_id >= 100:
             wandb.finish()
             exit()
         logger.info(f"Round {self.round_id} started")
-        parameters = self.start_round()
+        # parameters = self.start_round()
+        sleep(15)
 
-        if parameters is None:
-            print("Error")
-            return
+        param_list = ndarrays_to_parameters(
+            [val.cpu().numpy() for _, val in self.model.state_dict.items()]
+        )
+        # if parameters is None:
+        #     print("Error")
+        #     return
         # weights = parameters_to_ndarrays(parameters)
-        self.set_parameters(random.randint(0, 100))
+        self.server.parameters = param_list
         self.round_ongoing = False
         cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
         # TODO: add host to save path
@@ -215,8 +162,7 @@ class AsyncServer(Server):
             f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-local.pt",
         )
 
-        parameters = parameters[0]
-        cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
+        cid = asyncio.run(save_model_ipfs(param_list, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
         while True:
             try:

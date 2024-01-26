@@ -158,9 +158,12 @@ class AsyncServer(Server):
         if (len(list(global_models))) == 0:
             print(f"no global models - {self.round_id}")
             return
-        selected_models = pick_selected_model(
-            global_models, aggregation_policy, scoring_policy, int(k), self.cid
-        )
+        if self.round_id < 20:
+            selected_models = pick_selected_model(global_models, "pick_self", scoring_policy, int(k), self.cid)
+        else:
+            selected_models = pick_selected_model(
+                global_models, aggregation_policy, scoring_policy, int(k), self.cid
+            )
 
         if len(selected_models) > 0:
             logger.info(f"Aggregating models {selected_models}")

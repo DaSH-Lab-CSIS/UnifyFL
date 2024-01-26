@@ -18,6 +18,7 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # DEVICE = "cpu"
 
 
+
 class CIFAR10Model(nn.Module):
     """Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')"""
 
@@ -68,8 +69,9 @@ class CIFAR10Model(nn.Module):
     def load_data():
         """Load CIFAR-10 (training and test set)."""
         trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-        trainset = ImageFolder("./data/cifar10/train", transform=trf)
-        testset = ImageFolder("./data/cifar10/train", transform=trf)
+        cur = os.environ.get('TRAIN_SET') or ""
+        trainset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
+        testset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 
     @staticmethod

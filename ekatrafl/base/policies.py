@@ -77,7 +77,7 @@ def pick_selected_model(
             my_model = list(filter(lambda x: x[0] == mine, global_models))
             if len(my_model) == 0:
                 return list(map(lambda x: x[0], global_models))
-            self_score = assign_score(my_model[1])
+            self_score = assign_score(my_model[0][1])
             mmaa =  list(
                 map(
                     lambda x: x[0],

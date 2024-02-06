@@ -19,6 +19,10 @@ The SyncRound contract manages synchronous rounds of federated learning. It orch
 
 The AsyncRound contract manages asynchronous rounds of federated learning. Trainers can submit their models, and registered scorers can submit scores for evaluation. It emits events for model submission, scoring initiation, and score submission.  Similar to SyncRound, it ensures that only registered trainers and scorers can participate in the process.
 
+## ABI
+
+The ABI subfolder contains the compiled ABI files of the contracts. These ABI files are generated using Remix Ethereum IDE or similar tools during the compilation process. They define the interface of each contract, allowing interaction with the contracts from external applications or scripts.
+
 
 ## Usage
 

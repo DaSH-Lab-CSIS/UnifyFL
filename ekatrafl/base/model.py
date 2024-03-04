@@ -4,13 +4,14 @@ import torch
 from torch.utils.data.dataloader import DataLoader
 from models.cifar import CIFAR10Model
 from models.emnist import EMNISTModel
+from models.mnist import MNISTModel
 import numpy as np
 from torch import nn
 
 import flwr as fl
 
 
-models = {"cifar10": CIFAR10Model, "emnist": EMNISTModel}
+models = {"cifar10": CIFAR10Model, "emnist": EMNISTModel, "mnist": MNISTModel}
 
 
 def accuracy_scorer(model, dataloader: DataLoader):

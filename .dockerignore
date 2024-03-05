@@ -1,0 +1,6 @@
+**/.git
+wandb/*
+download/*
+upload/*
+save/*
+out/*

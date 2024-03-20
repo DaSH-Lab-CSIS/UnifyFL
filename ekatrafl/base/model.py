@@ -3,13 +3,14 @@ from flwr.common.typing import NDArray, Parameters
 import torch
 from torch.utils.data.dataloader import DataLoader
 from models.cifar import CIFAR10Model
+from models.mnist import MNISTModel
 import numpy as np
 from torch import nn
 
 import flwr as fl
 
 
-models = {"cifar10": CIFAR10Model}
+models = {"cifar10": CIFAR10Model, "mnist": MNISTModel}
 
 
 def accuracy_scorer(model, dataloader: DataLoader):

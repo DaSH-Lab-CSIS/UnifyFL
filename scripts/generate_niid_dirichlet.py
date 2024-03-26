@@ -24,7 +24,10 @@ def rearrange_data_by_class(data, targets, n_class):
 def get_dataset(mode="train"):
     trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    dataset = ImageFolder("./data/cifar10/train", transform=trf)
+    if mode == "test":
+        dataset = ImageFolder("./data/cifar10/test", transform=trf)
+    else:
+        dataset = ImageFolder("./data/cifar10/train", transform=trf)
     # print(dataset.__dict__.keys())
     n_sample = len(dataset.samples)
     SRC_N_CLASS = len(dataset.classes)

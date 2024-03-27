@@ -1,20 +1,22 @@
 {
-    "name":"sync_4",
+    "name":"async_mnist_s1t1_l",
     "time_setting": "",
-    "type": "round",
+    "type": "time",
 
     "lines": [
         {
-            "name": "dashlab2",
-            "file": "../results/async/cifar10/"
+            "name": "dashlab4",
+            "file": "../final/async/mnist/5ab08e78-795a-45ac-9eb0-33e21f35ab19/10.8.1.44/5ab08e78-795a-45ac-9eb0-33e21f35ab19-10.8.1.44_local.csv"
+
+
     },
         {
-            "name": "dashlab3",
-            "file": "../results/sync/cifar10/9d8bcba0-b14a-4046-96e3-9db07c0ec18f/10.8.1.48_local.csv"
+            "name": "dashlab2",
+            "file": "../final/async/mnist/5ab08e78-795a-45ac-9eb0-33e21f35ab19/10.8.1.154/5ab08e78-795a-45ac-9eb0-33e21f35ab19-10.8.1.154_local.csv"
         },
         {
-            "name": "dashlab4",
-            "file": "../results/sync/cifar10/9d8bcba0-b14a-4046-96e3-9db07c0ec18f/10.8.1.44_local.csv"
+            "name": "dashlab3",
+            "file": "../final/async/mnist/5ab08e78-795a-45ac-9eb0-33e21f35ab19/10.8.1.48/5ab08e78-795a-45ac-9eb0-33e21f35ab19-10.8.1.48_local.csv"
         }
 
     ]

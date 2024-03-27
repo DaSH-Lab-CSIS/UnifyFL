@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
-from torchvision.transforms import Compose, Normalize, ToTensor
+from torchvision.transforms import Compose, Normalize, ToTensor, Grayscale
 from tqdm import tqdm
 import os
 
@@ -67,7 +67,7 @@ class MNISTModel(nn.Module):
     @staticmethod
     def load_data():
         """Load CIFAR-10 (training and test set)."""
-        trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        trf = Compose([Grayscale(), ToTensor(), Normalize((0.5, ), (0.5, ))])
         cur = os.environ.get("TRAIN_SET") or ""
         trainset = ImageFolder(f"./data/mnist/train{cur}", transform=trf)
         testset = ImageFolder(f"./data/mnist/train{cur}", transform=trf)

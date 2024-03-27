@@ -3,7 +3,6 @@ from collections import OrderedDict
 import flwr as fl
 from flwr.common.typing import NDArray
 import torch
-import wandb
 import socket
 import getpass
 from ekatrafl.base.model import models
@@ -17,7 +16,6 @@ from ekatrafl.base.model import models
 
 
 # Login to wandb
-wandb.login()
 
 
 class BaseClient(fl.client.NumPyClient):
@@ -51,8 +49,6 @@ class FlowerClient(BaseClient):
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         loss, accuracy = self.model.test_model(self.testloader)
-        if self.log:
-            wandb.log({"accuracy": accuracy, "loss": loss})
         return loss, len(self.testloader.dataset), {"accuracy": accuracy}
 
 
@@ -86,11 +82,6 @@ def main():
         client=FlowerClient(model, log=True),
     )
 
-    wandb.init(
-        project="ekatrafl",
-        config={"workload": "cifar10"},
-        id=f"{getpass.getuser()}-{socket.gethostname()}",
-    )
 
 
 if __name__ == "__main__":

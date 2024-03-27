@@ -5,11 +5,13 @@ import torch
 import csv
 import sys
 from torch.utils.data import DataLoader
-from models.cifar import CIFAR10Model
+from ekatrafl.base.model import models
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+DEVICE = "cpu"
 
-model = CIFAR10Model().to(DEVICE)
+model = models["mnist"]().to(DEVICE)
+# model = CIFAR10Model().to(DEVICE)
 testset = model.get_testset()
 testloader = DataLoader(testset, batch_size=64)
 

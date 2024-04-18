@@ -28,7 +28,7 @@ frozenlist==1.4.1
 fsspec==2023.12.2
 gitdb==4.0.11
 gitignore-parser==0.1.9
-GitPython==3.1.40
+GitPython==3.1.41
 grpcio==1.60.0
 hexbytes==0.3.1
 idna==3.6
@@ -66,7 +66,7 @@ py-multicodec==0.2.1
 py-multiformats-cid==0.4.4
 py-multihash==2.0.1
 pycparser==2.21
-pycryptodome==3.19.0
+pycryptodome==3.19.1
 python-baseconv==1.2.2
 pyunormalize==15.1.0
 PyYAML==6.0.1

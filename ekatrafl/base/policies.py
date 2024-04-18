@@ -74,9 +74,10 @@ def pick_selected_model(
         case "pick_self":
             return [mine]
         case "pick_above_self":
-            self_score = assign_score(
-                list(filter(lambda x: x[0] == mine, global_models))[1]
-            )
+            my_model = list(filter(lambda x: x[0] == mine, global_models))
+            if len(my_model) == 0:
+                return list(map(lambda x: x[0], global_models))
+            self_score = assign_score(my_model[0][1])
             mmaa =  list(
                 map(
                     lambda x: x[0],

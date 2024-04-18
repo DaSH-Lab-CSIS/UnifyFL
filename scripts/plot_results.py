@@ -120,9 +120,9 @@ ax.set_title(config["name"], fontsize="x-large", fontstyle="oblique")
 ax.set_ylabel("% Accuracy", fontsize="large")
 ax.set_xlabel(config["type"], fontsize="large")
 
-ax2 = ax.twinx()
-ax2.set_ylabel("Loss", fontsize="large")
-ax2.set_ylim(0, 2.5)
+# ax2 = ax.twinx()
+# ax2.set_ylabel("Loss", fontsize="large")
+# ax2.set_ylim(0, 2.5)
 
 for i in range(len(config["lines"])):
     print(*accuracy_data[i], i, sep="\n")
@@ -132,11 +132,11 @@ for i in range(len(config["lines"])):
         [x[1] for x in accuracy_data[i]],
         label=config["lines"][i]["name"] + " accuracy",
     )
-    ax2.plot(
-        [x[0] for x in loss_data[i]],
-        [x[1] for x in loss_data[i]],
-        label=config["lines"][i]["name"] + " loss",
-    )
+    # ax2.plot(
+    #     [x[0] for x in loss_data[i]],
+    #     [x[1] for x in loss_data[i]],
+    #     label=config["lines"][i]["name"] + " loss",
+    # )
 
 # data1 = np.array(local_data[0])
 # x1, y1 = data1.T
@@ -147,4 +147,4 @@ plt.grid()
 # plt.legend()
 # fig.tight_layout()
 plt.show()
-plt.savefig(config["name"] + ".svg")
+plt.savefig(config["name"] + ".png")

@@ -3,10 +3,7 @@ from flwr.common.typing import NDArray, Parameters
 import torch
 from torch.utils.data.dataloader import DataLoader
 from models.cifar import CIFAR10Model
-<<<<<<< HEAD
 from models.emnist import EMNISTModel
-=======
->>>>>>> 30c8919b818ea6de7f1fccffe6a30176ba7537bc
 from models.mnist import MNISTModel
 import numpy as np
 from torch import nn
@@ -14,11 +11,7 @@ from torch import nn
 import flwr as fl
 
 
-<<<<<<< HEAD
 models = {"cifar10": CIFAR10Model, "emnist": EMNISTModel, "mnist": MNISTModel}
-=======
-models = {"cifar10": CIFAR10Model, "mnist": MNISTModel}
->>>>>>> 30c8919b818ea6de7f1fccffe6a30176ba7537bc
 
 
 def accuracy_scorer(model, dataloader: DataLoader):

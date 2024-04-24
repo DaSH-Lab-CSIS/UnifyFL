@@ -17,51 +17,6 @@ warnings.filterwarnings("ignore", category=UserWarning)
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # DEVICE = "cpu"
 
-
-class NTDLoss(nn.Module):
-    """Not-true Distillation Loss.
-    As described in:
-    [Preservation of the Global Knowledge by Not-True Distillation in Federated Learning](https://arxiv.org/pdf/2106.03097.pdf)
-    """
-
-    def __init__(self, num_classes=10, tau=3, beta=1):
-        super(NTDLoss, self).__init__()
-        self.CE = nn.CrossEntropyLoss()
-        self.KLDiv = nn.KLDivLoss(reduction="batchmean")
-        self.num_classes = num_classes
-        self.tau = tau
-        self.beta = beta
-
-    def forward(self, local_logits, targets, global_logits):
-        """Forward pass."""
-        ce_loss = self.CE(local_logits, targets)
-        local_logits = self._refine_as_not_true(local_logits, targets)
-        local_probs = F.log_softmax(local_logits / self.tau, dim=1)
-        with torch.no_grad():
-            global_logits = self._refine_as_not_true(global_logits, targets)
-            global_probs = torch.softmax(global_logits / self.tau, dim=1)
-
-        ntd_loss = (self.tau**2) * self.KLDiv(local_probs, global_probs)
-
-        loss = ce_loss + self.beta * ntd_loss
-
-        return loss
-
-    def _refine_as_not_true(
-        self,
-        logits,
-        targets,
-    ):
-        nt_positions = torch.arange(0, self.num_classes).to(logits.device)
-        nt_positions = nt_positions.repeat(logits.size(0), 1)
-        nt_positions = nt_positions[nt_positions[:, :] != targets.view(-1, 1)]
-        nt_positions = nt_positions.view(-1, self.num_classes - 1)
-
-        logits = torch.gather(logits, 1, nt_positions)
-
-        return logits
-
-
 class EMNISTModel(nn.Module):
     """Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')"""
 
@@ -85,20 +40,16 @@ class EMNISTModel(nn.Module):
 
     def train_model(self, trainloader, epochs):
         """Train the model on the training set."""
-        criterion = NTDLoss(num_classes=10, tau=1, beta=1)
+        criterion = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
-        global_net = EMNISTModel().to(DEVICE)
-        global_net.load_state_dict(self.state_dict())
-        self.train()
+        print("training")
         for _ in range(epochs):
             for images, labels in tqdm(trainloader):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
                 optimizer.zero_grad()
-                local_logits = self(images)
-                with torch.no_grad():
-                    global_logits = global_net(images)
-                criterion(local_logits, labels, global_logits).backward()
+                criterion(self(images.to(DEVICE)), labels.to(DEVICE)).backward()
                 optimizer.step()
+        print("Done")
 
     def test_model(self, testloader):
         """Validate the model on the test set."""

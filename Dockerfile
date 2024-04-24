@@ -26,6 +26,4 @@ RUN poetry config virtualenvs.create false \
 COPY . /code/
 
 
-if [ "$party" == 1 ]; then
 CMD ["poetry", "run", "party", "configs/party.json"]
-fi

@@ -25,8 +25,8 @@ python = "^3.10"
 flwr = "^1.7.0"
 torch = "^1.12.0"
 torchvision = "^0.13.0"
-# aioipfs = "^0.6.3"
-# web3 = "^6.4.0"
+aioipfs = "^0.6.3"
+web3 = "^6.4.0"
 tqdm = "^4.66.1"
 
 

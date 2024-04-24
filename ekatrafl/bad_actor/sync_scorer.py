@@ -18,10 +18,10 @@ from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 
 # from ekatrafl.base.ipfs import load_model_ipfs
 # from ekatrafl.base.model import models, scorers, set_parameters
-import wandb
+# import wandb
 import random
 
-wandb.login()
+# wandb.login()
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
@@ -93,7 +93,7 @@ sync_contract = create_sync_contract(w3, sync_contract_address)
 async def score_model(round: int, cids: str):
     for cid in cids:
         time.sleep(5)
-        random_score = random.randint(0,100)
+        random_score = random.randint(0, 100)
         logger.info(f"model: {cid} -> score: {(random_score):>0.1f}")
         sync_contract.functions.submitScore(round, cid, random_score).transact()
     logger.info(f"Model scores submitted to contract")
@@ -103,15 +103,15 @@ def main():
     registration_contract.functions.registerNode("scorer").transact()
     events = set()
     last_seen_block = w3.eth.block_number
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-            "scorer": scoring,
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-scorer",
-    )
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #         "scorer": scoring,
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-scorer",
+    # )
     while True:
         for event in sync_contract.events.StartScoring().get_logs(
             fromBlock=last_seen_block

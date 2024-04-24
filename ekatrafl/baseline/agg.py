@@ -10,11 +10,12 @@ from ekatrafl.base.client import BaseClient
 import flwr as fl
 import sys
 import json
-import wandb
+
+# import wandb
 import os
 
 # Login to wandb
-wandb.login()
+# wandb.login()
 
 
 from ekatrafl.base.model import models
@@ -87,14 +88,14 @@ def main():
         server_address=flwr_super_address, client=ClientServer(flwr_sub_address)
     )
 
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-baseline-agg",
-    )
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-baseline-agg",
+    # )
 
 
 if __name__ == "__main__":

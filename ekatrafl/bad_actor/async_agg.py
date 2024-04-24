@@ -17,7 +17,8 @@ import asyncio
 
 from web3 import Web3
 from time import sleep
-import wandb
+
+# import wandb
 from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_async_contract
 from ekatrafl.base.custom_server import Server
@@ -31,7 +32,7 @@ import torch
 import os
 import random
 
-wandb.login()
+# wandb.login()
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -140,7 +141,7 @@ class AsyncServer(Server):
         self.round_id += 1
         self.model = model()
         if self.round_id >= 100:
-            wandb.finish()
+            # wandb.finish()
             exit()
         logger.info(f"Round {self.round_id} started")
         # parameters = self.start_round()
@@ -187,17 +188,17 @@ class AsyncServer(Server):
 
 def main():
     """Start server and train model."""
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-            "aggregation_policy": aggregation_policy,
-            "scoring_policy": scoring_policy,
-            "k": k,
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
-    )
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #         "aggregation_policy": aggregation_policy,
+    #         "scoring_policy": scoring_policy,
+    #         "k": k,
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-agg",
+    # )
     # AsyncServer(server_address=flwr_server_address, strategy=strategy)
 
 

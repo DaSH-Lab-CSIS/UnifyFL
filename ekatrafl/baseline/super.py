@@ -15,12 +15,13 @@ import logging
 from operator import itemgetter
 import sys
 import json
-import wandb
+
+# import wandb
 
 from models.cifar import CIFAR10Model
 
 # Login to wandb
-wandb.login()
+# wandb.login()
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -116,14 +117,14 @@ def main():
         strategy=strategy,
     )
 
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-super-agg",
-    )
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-super-agg",
+    # )
 
 
 # Start Flower server

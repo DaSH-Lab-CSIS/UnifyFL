@@ -7,9 +7,10 @@ import socket
 import sys
 from time import sleep
 from operator import itemgetter
+
 # from flwr.common import parameters_to_ndarrays
 # import torch
-import wandb
+# import wandb
 # from torch.utils.data import DataLoader, Subset
 from web3 import Web3
 import random
@@ -27,7 +28,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-wandb.login()
+# wandb.login()
 
 with open(sys.argv[1]) as f:
     config = json.load(f)
@@ -53,7 +54,6 @@ with open(sys.argv[1]) as f:
         config
     )
 
-wandb.login()
 # logger.info(f"Model: {model.__name__}")
 # logger.info(f"Scorer: {scorer.__name__}")
 
@@ -68,7 +68,7 @@ async_contract = create_async_contract(w3, async_contract_address)
 async def score_model(trainer: str, cid: str):
     # model = models[workload]()
     logger.info(f"Model recevied to score with CID: {cid}")
-    async_contract.functions.submitScore(cid, random.randint(0,100)).transact()
+    async_contract.functions.submitScore(cid, random.randint(0, 100)).transact()
     logger.info(f"Model scores submitted to contract")
 
 
@@ -76,15 +76,15 @@ def main():
     registration_contract.functions.registerNode("scorer").transact()
     events = set()
     last_seen_block = w3.eth.block_number
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-            "scorer": scoring,
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-scorer",
-    )
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #         "scorer": scoring,
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-scorer",
+    # )
     while True:
         for event in async_contract.events.StartScoring().get_logs(
             fromBlock=last_seen_block

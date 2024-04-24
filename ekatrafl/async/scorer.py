@@ -2,14 +2,13 @@ import asyncio
 import getpass
 import json
 import logging
-import math
 import socket
 import sys
 from time import sleep
 from operator import itemgetter
 from flwr.common import ndarrays_to_parameters, parameters_to_ndarrays
-import torch
-import wandb
+
+# import wandb
 from torch.utils.data import DataLoader, Subset
 from web3 import Web3
 
@@ -26,7 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-wandb.login()
+# wandb.login()
 
 with open(sys.argv[1]) as f:
     config = json.load(f)
@@ -55,7 +54,6 @@ with open(sys.argv[1]) as f:
 model = models[workload]
 scorer = scorers[scoring]
 
-wandb.login()
 logger.info(f"Model: {model.__name__}")
 logger.info(f"Scorer: {scorer.__name__}")
 
@@ -92,15 +90,15 @@ def main():
     registration_contract.functions.registerNode("scorer").transact()
     events = set()
     last_seen_block = w3.eth.block_number
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-            "scorer": scoring,
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-scorer",
-    )
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #         "scorer": scoring,
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-async-scorer",
+    # )
     while True:
         for event in async_contract.events.StartScoring().get_logs(
             fromBlock=last_seen_block

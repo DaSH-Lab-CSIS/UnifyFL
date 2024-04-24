@@ -4,6 +4,7 @@ import json
 from operator import itemgetter
 from time import sleep
 from ekatrafl.base.policies import pick_selected_model
+
 # from flwr.common import NDArray, parameters_to_ndarrays
 
 from datetime import datetime
@@ -16,9 +17,11 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 from ekatrafl.base.custom_server import Server
-import wandb
+
+# import wandb
 
 from ekatrafl.base.ipfs import load_models, save_model_ipfs
+
 # import flwr as fl
 # from flwr.server.strategy.aggregate import aggregate
 from ekatrafl.base.model import models
@@ -176,7 +179,7 @@ class SyncServer(Server):
         self.round_ongoing = True
         self.round_id += 1
         if self.round_id >= 100:
-            wandb.finish()
+            # wandb.finish()
             exit()
         logger.info(f"Round {self.round_id} started")
         parameters = self.start_round()
@@ -219,18 +222,18 @@ def main():
     import socket
     import getpass
 
-    wandb.login()
-    wandb.init(
-        project="ekatrafl",
-        config={
-            "workload": "cifar10",
-            "aggregation_policy": aggregation_policy,
-            "scoring_policy": scoring_policy,
-            "k": k,
-        },
-        group=experiment_id,
-        name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-agg",
-    )
+    # wandb.login()
+    # wandb.init(
+    #     project="ekatrafl",
+    #     config={
+    #         "workload": "cifar10",
+    #         "aggregation_policy": aggregation_policy,
+    #         "scoring_policy": scoring_policy,
+    #         "k": k,
+    #     },
+    #     group=experiment_id,
+    #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-agg",
+    # )
     # SyncServer(server_address=flwr_server_address, strategy=strategy)
 
 

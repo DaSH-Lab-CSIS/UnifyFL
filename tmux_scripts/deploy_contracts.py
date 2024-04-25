@@ -10,7 +10,7 @@ aggregation_policy = sys.argv[2]
 scoring_policy = sys.argv[3]
 k = sys.argv[4]
 experiment_id = str(uuid.uuid4())
-RPC_URL = "http://10.8.1.25:8547"
+RPC_URL = "http://10.8.1.173:8547"
 PRIVATE_KEY = "0xbec97322819fee49724622e4d6f5af2d7b16d42e4230f276747b1a1750e3a61a"
 # os.chdir("contracts")
 c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"
@@ -54,7 +54,7 @@ os.chdir("..")
 com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k} {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
-names = [("10.8.1.25", 222), ("10.8.1.44", 222), ("10.8.1.48", 222)]
+names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17", 22)]
 # if mode == "1":
 #     c3 = (
 #         "forge create --rpc-url {RPC_URL} --private-key 0x9b19a5202b4678b62adc4af295c791b74a04f1bced3f014772f82cd60f919989 src/SyncRound.sol:SyncRound"

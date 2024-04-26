@@ -11,6 +11,8 @@ scoring_policy = sys.argv[3]
 k = sys.argv[4]
 experiment_id = str(uuid.uuid4())
 RPC_URL = "http://10.8.1.173:8547"
+
+# Generate using get_account.py
 PRIVATE_KEY = "0xbec97322819fee49724622e4d6f5af2d7b16d42e4230f276747b1a1750e3a61a"
 # os.chdir("contracts")
 c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"

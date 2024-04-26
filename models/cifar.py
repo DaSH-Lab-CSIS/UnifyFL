@@ -10,6 +10,16 @@ from torchvision.transforms import Compose, Normalize, ToTensor
 from tqdm import tqdm
 import os
 
+
+from datasets import load_from_disk
+
+
+def apply_transforms(batch):
+    transforms = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    batch["img"] = [transforms(img) for img in batch["img"]]
+    return batch
+
+
 # #############################################################################
 # 1. Regular PyTorch pipeline: nn.Module, train, test, and DataLoader
 # #############################################################################
@@ -117,17 +127,32 @@ class CIFAR10Model(nn.Module):
     @staticmethod
     def load_data():
         """Load CIFAR-10 (training and test set)."""
-        trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        # trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         cur = os.environ.get("TRAIN_SET") or ""
-        trainset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
-        testset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
+        # trainset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
+        # testset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
+        trainset = (
+            load_from_disk(f"./data/cifar10/train{cur}")
+            .with_transform(apply_transforms)
+            .with_format("torch")
+        )
+        testset = (
+            load_from_disk(f"./data/cifar10/train{cur}")
+            .with_transform(apply_transforms)
+            .with_format("torch")
+        )
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 
     @staticmethod
     def get_testset():
         """Load CIFAR-10 test set."""
-        trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-        testset = ImageFolder("./data/cifar10/test", transform=trf)
+        # trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        # testset = ImageFolder("./data/cifar10/test", transform=trf)
+        testset = (
+            load_from_disk("./data/cifar10/test")
+            .with_transform(apply_transforms)
+            .with_format("torch")
+        )
         return testset
 
 

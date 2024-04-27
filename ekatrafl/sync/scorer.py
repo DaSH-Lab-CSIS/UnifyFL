@@ -1,13 +1,9 @@
 import asyncio
-import getpass
 import json
 import logging
-import math
-import socket
 import sys
 import time
 from operator import itemgetter
-import async_timeout
 
 import torch
 
@@ -64,7 +60,8 @@ w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = account
 
 
-nn_model = models[workload]()
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+nn_model = models[workload]().to(DEVICE)
 # print(nn_model)
 
 

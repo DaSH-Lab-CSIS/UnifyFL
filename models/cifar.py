@@ -101,8 +101,8 @@ class CIFAR10Model(nn.Module):
         global_net.load_state_dict(self.state_dict())
         self.train()
         for _ in range(epochs):
-            for images, labels in tqdm(trainloader):
-                images, labels = images.to(DEVICE), labels.to(DEVICE)
+            for batch in tqdm(trainloader):
+                images, labels = batch["image"].to(DEVICE), batch["label"].to(DEVICE)
                 optimizer.zero_grad()
                 local_logits = self(images)
                 with torch.no_grad():
@@ -115,7 +115,8 @@ class CIFAR10Model(nn.Module):
         criterion = torch.nn.CrossEntropyLoss()
         correct, loss = 0, 0.0
         with torch.no_grad():
-            for images, labels in tqdm(testloader):
+            for batch in tqdm(testloader):
+                images, labels = batch["image"].to(DEVICE), batch["label"].to(DEVICE)
                 outputs = self(images.to(DEVICE))
                 labels = labels.to(DEVICE)
                 loss += criterion(outputs, labels).item()

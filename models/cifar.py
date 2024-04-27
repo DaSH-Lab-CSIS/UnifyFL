@@ -67,6 +67,7 @@ class CIFAR10Model(nn.Module):
         """Validate the model on the test set."""
         criterion = torch.nn.CrossEntropyLoss()
         correct, loss = 0, 0.0
+        total = 0
         with torch.no_grad():
             for batch in tqdm(testloader):
                 images, labels = (
@@ -75,8 +76,9 @@ class CIFAR10Model(nn.Module):
                 )
                 outputs = self(images)
                 loss += criterion(outputs, labels).item()
+                total += labels.size(0)
                 correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
-        accuracy = correct / len(testloader.dataset)
+        accuracy = correct / total
         loss = loss / len(testloader)
         return loss, accuracy
 
@@ -91,9 +93,7 @@ class CIFAR10Model(nn.Module):
             apply_transforms
         )
         testset = (
-            load_from_disk(f"./data/cifar10/train{cur}").with_transform(
-                apply_transforms
-            )
+            load_from_disk(f"./data/cifar10/test").with_transform(apply_transforms)
             # .with_format("torch")
         )
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)

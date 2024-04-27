@@ -37,13 +37,14 @@ class BaseClient(fl.client.NumPyClient):
 
 # Define Flower client
 class FlowerClient(BaseClient):
-    def __init__(self, model, log=False):
+    def __init__(self, model, log=False, epochs=1):
+        self.epochs = epochs
         self.trainloader, self.testloader = model.load_data()
         super().__init__(model, log)
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-        self.model.train_model(self.trainloader, epochs=1)
+        self.model.train_model(self.trainloader, epochs=self.epochs)
         return self.get_parameters(config={}), len(self.trainloader.dataset), {}
 
     def evaluate(self, parameters, config):
@@ -64,16 +65,12 @@ def main():
         format="%(levelname)s:     %(message)s - %(asctime)s",
     )
     # TODO: Add logs in agg and super
-    logger = logging.getLogger(__name__)
+    # logger = logging.getLogger(__name__)
 
     with open(sys.argv[1]) as f:
         config = json.load(f)
-        (
-            workload,
-            flwr_server_address,
-        ) = itemgetter(
-            "workload",
-            "flwr_server_address",
+        (workload, flwr_server_address, epochs) = itemgetter(
+            "workload", "flwr_server_address", "epochs"
         )(config)
 
     model = models[workload]

@@ -76,7 +76,7 @@ def main():
     model = models[workload]
     fl.client.start_numpy_client(
         server_address=flwr_server_address,
-        client=FlowerClient(model, log=True),
+        client=FlowerClient(model, log=True, epochs=epochs),
     )
 
 

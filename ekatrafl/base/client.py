@@ -16,12 +16,12 @@ from ekatrafl.base.model import models
 
 
 # Login to wandb
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class BaseClient(fl.client.NumPyClient):
     def __init__(self, model, log=False):
-        self.model = model()
-        # self.trainloader, self.testloader = model.load_data()
+        self.model = model().to(DEVICE)
         self.log = log
         super().__init__()
 
@@ -81,7 +81,6 @@ def main():
         server_address=flwr_server_address,
         client=FlowerClient(model, log=True),
     )
-
 
 
 if __name__ == "__main__":

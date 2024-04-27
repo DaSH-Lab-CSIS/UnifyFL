@@ -29,50 +29,6 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # DEVICE = "cpu"
 
 
-class NTDLoss(nn.Module):
-    """Not-true Distillation Loss.
-    As described in:
-    [Preservation of the Global Knowledge by Not-True Distillation in Federated Learning](https://arxiv.org/pdf/2106.03097.pdf)
-    """
-
-    def __init__(self, num_classes=10, tau=3, beta=1):
-        super(NTDLoss, self).__init__()
-        self.CE = nn.CrossEntropyLoss()
-        self.KLDiv = nn.KLDivLoss(reduction="batchmean")
-        self.num_classes = num_classes
-        self.tau = tau
-        self.beta = beta
-
-    def forward(self, local_logits, targets, global_logits):
-        """Forward pass."""
-        ce_loss = self.CE(local_logits, targets)
-        local_logits = self._refine_as_not_true(local_logits, targets)
-        local_probs = F.log_softmax(local_logits / self.tau, dim=1)
-        with torch.no_grad():
-            global_logits = self._refine_as_not_true(global_logits, targets)
-            global_probs = torch.softmax(global_logits / self.tau, dim=1)
-
-        ntd_loss = (self.tau**2) * self.KLDiv(local_probs, global_probs)
-
-        loss = ce_loss + self.beta * ntd_loss
-
-        return loss
-
-    def _refine_as_not_true(
-        self,
-        logits,
-        targets,
-    ):
-        nt_positions = torch.arange(0, self.num_classes).to(logits.device)
-        nt_positions = nt_positions.repeat(logits.size(0), 1)
-        nt_positions = nt_positions[nt_positions[:, :] != targets.view(-1, 1)]
-        nt_positions = nt_positions.view(-1, self.num_classes - 1)
-
-        logits = torch.gather(logits, 1, nt_positions)
-
-        return logits
-
-
 class CIFAR10Model(nn.Module):
     """Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')"""
 
@@ -95,19 +51,14 @@ class CIFAR10Model(nn.Module):
 
     def train_model(self, trainloader, epochs):
         """Train the model on the training set."""
-        criterion = NTDLoss(num_classes=10, tau=1, beta=1)
+        criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
-        global_net = CIFAR10Model().to(DEVICE)
-        global_net.load_state_dict(self.state_dict())
         self.train()
         for _ in range(epochs):
             for batch in tqdm(trainloader):
                 images, labels = batch["img"].to(DEVICE), batch["label"].to(DEVICE)
                 optimizer.zero_grad()
-                local_logits = self(images)
-                with torch.no_grad():
-                    global_logits = global_net(images)
-                criterion(local_logits, labels, global_logits).backward()
+                criterion(self(images), labels).backward()
                 optimizer.step()
 
     def test_model(self, testloader):
@@ -117,8 +68,7 @@ class CIFAR10Model(nn.Module):
         with torch.no_grad():
             for batch in tqdm(testloader):
                 images, labels = batch["img"].to(DEVICE), batch["label"].to(DEVICE)
-                outputs = self(images.to(DEVICE))
-                labels = labels.to(DEVICE)
+                outputs = self(images)
                 loss += criterion(outputs, labels).item()
                 correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
         accuracy = correct / len(testloader.dataset)

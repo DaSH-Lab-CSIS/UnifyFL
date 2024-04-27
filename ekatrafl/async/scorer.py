@@ -1,8 +1,7 @@
 import asyncio
-import getpass
 import json
 import logging
-import socket
+import torch
 import sys
 from time import sleep
 from operator import itemgetter
@@ -73,7 +72,8 @@ async_contract = create_async_contract(w3, async_contract_address)
 
 
 async def score_model(trainer: str, cid: str):
-    model = models[workload]()
+    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+    model = models[workload]().to(DEVICE)
     logger.info(f"Model recevied to score with CID: {cid}")
     # model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
     model.load_state_dict(await load_model_ipfs(cid, ipfs_host))

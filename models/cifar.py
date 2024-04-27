@@ -57,7 +57,9 @@ class CIFAR10Model(nn.Module):
         for _ in range(epochs):
             for batch in tqdm(trainloader):
                 images, labels = batch["img"].to(DEVICE), batch["label"].to(DEVICE)
+                print(type(images))
                 images = images.float()
+                print(type(images))
                 optimizer.zero_grad()
                 criterion(self(images), labels).backward()
                 optimizer.step()

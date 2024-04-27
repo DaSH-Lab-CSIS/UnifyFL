@@ -87,15 +87,14 @@ class CIFAR10Model(nn.Module):
         cur = os.environ.get("TRAIN_SET") or ""
         # trainset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
         # testset = ImageFolder(f"./data/cifar10/train{cur}", transform=trf)
-        trainset = (
-            load_from_disk(f"./data/cifar10/train{cur}")
-            .with_transform(apply_transforms)
-            .with_format("torch")
+        trainset = load_from_disk(f"./data/cifar10/train{cur}").with_transform(
+            apply_transforms
         )
         testset = (
-            load_from_disk(f"./data/cifar10/train{cur}")
-            .with_transform(apply_transforms)
-            .with_format("torch")
+            load_from_disk(f"./data/cifar10/train{cur}").with_transform(
+                apply_transforms
+            )
+            # .with_format("torch")
         )
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 

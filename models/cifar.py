@@ -57,6 +57,7 @@ class CIFAR10Model(nn.Module):
         for _ in range(epochs):
             for batch in tqdm(trainloader):
                 images, labels = batch["img"].to(DEVICE), batch["label"].to(DEVICE)
+                images = images.float()
                 optimizer.zero_grad()
                 criterion(self(images), labels).backward()
                 optimizer.step()
@@ -68,6 +69,7 @@ class CIFAR10Model(nn.Module):
         with torch.no_grad():
             for batch in tqdm(testloader):
                 images, labels = batch["img"].to(DEVICE), batch["label"].to(DEVICE)
+                images = images.float()
                 outputs = self(images)
                 loss += criterion(outputs, labels).item()
                 correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()

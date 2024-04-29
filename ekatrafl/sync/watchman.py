@@ -46,7 +46,7 @@ def main():
         logging.info("Starting scoring")
         sync_contract.functions.startScoring().transact()
         # time needed to score
-        time.sleep(15)
+        time.sleep(timeout / 4 + 10)
 
 
 if __name__ == "__main__":

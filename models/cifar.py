@@ -105,7 +105,6 @@ class CIFAR10Model(nn.Module):
         # testset = ImageFolder("./data/cifar10/test", transform=trf)
         testset = (
             load_from_disk("./data/cifar10/test")
-            .with_format("torch")
             .with_transform(apply_transforms)
         )
 

@@ -34,9 +34,9 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # DEVICE = "cpu"
 
 
-class CIFAR10Model(nn.Module):
+class ImageNetModel(nn.Module):
     def __init__(self, num_classes=200) -> None:
-        super(CIFAR10Model, self).__init__()
+        super(ImageNetModel, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
@@ -173,22 +173,18 @@ class CIFAR10Model(nn.Module):
     @staticmethod
     def load_data():
         cur = os.environ.get("TRAIN_SET") or ""
-        trainset = (
-            load_from_disk(f"./data/imagenet/train{cur}")
-            .with_transform(apply_transforms)
+        trainset = load_from_disk(f"./data/imagenet/train{cur}").with_transform(
+            apply_transforms
         )
-        testset = (
-            load_from_disk("./data/imagenet/test")
-            .with_transform(apply_transforms)
+        testset = load_from_disk("./data/imagenet/test").with_transform(
+            apply_transforms
         )
         return DataLoader(trainset, batch_size=32, shuffle=True), DataLoader(testset)
 
     @staticmethod
     def get_testset():
-
-        testset = (
-            load_from_disk("./data/imagenet/test")
-            .with_transform(apply_transforms)
+        testset = load_from_disk("./data/imagenet/test").with_transform(
+            apply_transforms
         )
         return testset
 
@@ -201,8 +197,8 @@ def main():
     (
         trainloader,
         testloader,
-    ) = CIFAR10Model.load_data()
-    net = CIFAR10Model().to(DEVICE)
+    ) = ImageNetModel.load_data()
+    net = ImageNetModel().to(DEVICE)
     net.eval()
     print("Start training")
     net.train_model(trainloader=trainloader, epochs=2)

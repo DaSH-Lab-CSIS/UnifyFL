@@ -5,13 +5,19 @@ from torch.utils.data.dataloader import DataLoader
 from models.cifar import CIFAR10Model
 from models.emnist import EMNISTModel
 from models.mnist import MNISTModel
+from models.imagenet import ImageNetModel
 import numpy as np
 from torch import nn
 
 import flwr as fl
 
 
-models = {"cifar10": CIFAR10Model, "emnist": EMNISTModel, "mnist": MNISTModel}
+models = {
+    "cifar10": CIFAR10Model,
+    "emnist": EMNISTModel,
+    "mnist": MNISTModel,
+    "imagenet": ImageNetModel,
+}
 
 
 def accuracy_scorer(model, dataloader: DataLoader):

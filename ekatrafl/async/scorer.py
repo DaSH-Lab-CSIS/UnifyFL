@@ -64,7 +64,7 @@ testset = model.get_testset()
 testloader = DataLoader(
     testset,
     # Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
-    batch_size=256,
+    batch_size=64,
 )
 
 registration_contract = create_reg_contract(w3, registration_contract_address)

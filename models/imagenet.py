@@ -179,7 +179,9 @@ class ImageNetModel(nn.Module):
         testset = load_from_disk("./data/imagenet/test").with_transform(
             apply_transforms
         )
-        return DataLoader(trainset, batch_size=128, shuffle=True), DataLoader(testset, batch_size=256)
+        return DataLoader(trainset, batch_size=64, shuffle=True), DataLoader(
+            testset, batch_size=64
+        )
 
     @staticmethod
     def get_testset():

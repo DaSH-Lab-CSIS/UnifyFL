@@ -101,7 +101,7 @@ async def score_model(round: int, cids: str):
         logger.info(f"model: {cid} -> score: {(score[1] * 100):>0.1f}")
         try:
             sync_contract.functions.submitScore(
-                round, cid, int(score[1] * 100)
+                round, cid, int(score[1] * 1000)
             ).transact()
         except:
             pass

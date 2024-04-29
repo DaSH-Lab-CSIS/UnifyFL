@@ -82,7 +82,7 @@ async def score_model(trainer: str, cid: str):
     loss, accuracy = accuracy_scorer(model, testloader)
     logger.info(f"Accuracy: {(accuracy*100):>0.2f}%")
     logger.info(f"Loss: {(loss):>0.2f}")
-    async_contract.functions.submitScore(cid, int(accuracy)).transact()
+    async_contract.functions.submitScore(cid, int(accuracy * 1000)).transact()
     logger.info(f"Model scores submitted to contract")
 
 

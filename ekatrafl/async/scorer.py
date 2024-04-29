@@ -64,7 +64,7 @@ testset = model.get_testset()
 testloader = DataLoader(
     testset,
     # Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
-    batch_size=64,
+    batch_size=256,
 )
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
@@ -83,7 +83,7 @@ async def score_model(trainer: str, cid: str):
     logger.info(f"Accuracy: {(accuracy*100):>0.2f}%")
     logger.info(f"Loss: {(loss):>0.2f}")
     async_contract.functions.submitScore(cid, int(accuracy * 1000)).transact()
-    logger.info(f"Model scores submitted to contract")
+    logger.info("Model scores submitted to contract")
 
 
 def main():

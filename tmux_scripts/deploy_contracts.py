@@ -10,6 +10,8 @@ aggregation_policy = sys.argv[2]
 scoring_policy = sys.argv[3]
 k = sys.argv[4]
 experiment_id = str(uuid.uuid4())
+with open("experiments.txt", "a") as f:
+    f.write(f"{experiment_id}, {sys.argv}\n")
 RPC_URL = "http://10.8.1.173:8547"
 
 # Generate using get_account.py

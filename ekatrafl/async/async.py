@@ -1,9 +1,7 @@
 """Async EkatraFl server implementation."""
 from collections import OrderedDict
-import getpass
 import json
 from operator import itemgetter
-import socket
 from ekatrafl.base.policies import pick_selected_model
 from flwr.common import parameters_to_ndarrays, ndarrays_to_parameters
 
@@ -16,7 +14,6 @@ from web3 import Web3
 from time import sleep
 
 # import wandb
-from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_async_contract
 from ekatrafl.base.custom_server import Server
 
@@ -88,7 +85,10 @@ def set_weights(model, parameters):
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
 
 # Add this line when changing from anvil to geth chain
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+if os.getenv("GETH_POA"):
+    from web3.middleware import geth_poa_middleware
+
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = geth_account
 
 registration_contract = create_reg_contract(w3, registration_contract_address)

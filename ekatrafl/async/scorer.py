@@ -5,13 +5,12 @@ import torch
 import sys
 from time import sleep
 from operator import itemgetter
-from flwr.common import ndarrays_to_parameters, parameters_to_ndarrays
+import os
 
 # import wandb
 from torch.utils.data import DataLoader, Subset
 from web3 import Web3
 
-from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_async_contract, create_reg_contract
 
 from ekatrafl.base.ipfs import load_model_ipfs
@@ -57,7 +56,10 @@ logger.info(f"Model: {model.__name__}")
 logger.info(f"Scorer: {scorer.__name__}")
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+if os.getenv("GETH_POA"):
+    from web3.middleware import geth_poa_middleware
+
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = account
 
 testset = model.get_testset()

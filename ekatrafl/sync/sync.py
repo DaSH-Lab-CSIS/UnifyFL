@@ -12,7 +12,6 @@ import sys
 import asyncio
 
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
 from ekatrafl.base.contract import create_reg_contract, create_sync_contract
 from ekatrafl.base.custom_server import Server
 
@@ -76,7 +75,10 @@ model = models[workload]
 
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+if os.getenv("POA"):
+    from web3.middleware import geth_poa_middleware
+
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = geth_account
 
 registration_contract = create_reg_contract(w3, registration_contract_address)

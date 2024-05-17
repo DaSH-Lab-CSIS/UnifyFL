@@ -1,22 +1,22 @@
 {
-    "name":"async_mnist_s1t1_l",
+    "name":"sync_cifar_fedn",
     "time_setting": "",
-    "type": "time",
+    "type": "round",
 
     "lines": [
         {
             "name": "dashlab4",
-            "file": "../final/async/mnist/5ab08e78-795a-45ac-9eb0-33e21f35ab19/10.8.1.44/5ab08e78-795a-45ac-9eb0-33e21f35ab19-10.8.1.44_local.csv"
+            "file": "../results/sync/cifar10/2ced95f7-ac8b-432e-ba0d-c7dc0920c175/10.8.1.44/2ced95f7-ac8b-432e-ba0d-c7dc0920c175-10.8.1.44_local.csv"
 
 
     },
         {
             "name": "dashlab2",
-            "file": "../final/async/mnist/5ab08e78-795a-45ac-9eb0-33e21f35ab19/10.8.1.154/5ab08e78-795a-45ac-9eb0-33e21f35ab19-10.8.1.154_local.csv"
+            "file": "../results/sync/cifar10/2ced95f7-ac8b-432e-ba0d-c7dc0920c175/10.8.1.154/2ced95f7-ac8b-432e-ba0d-c7dc0920c175-10.8.1.154_local.csv"
         },
         {
             "name": "dashlab3",
-            "file": "../final/async/mnist/5ab08e78-795a-45ac-9eb0-33e21f35ab19/10.8.1.48/5ab08e78-795a-45ac-9eb0-33e21f35ab19-10.8.1.48_local.csv"
+            "file": "../results/sync/cifar10/2ced95f7-ac8b-432e-ba0d-c7dc0920c175/10.8.1.48/2ced95f7-ac8b-432e-ba0d-c7dc0920c175-10.8.1.48_local.csv"
         }
 
     ]

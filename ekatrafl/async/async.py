@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import json
 from operator import itemgetter
+
 from ekatrafl.base.policies import pick_selected_model
 from flwr.common import parameters_to_ndarrays, ndarrays_to_parameters
 
@@ -50,6 +51,7 @@ with open(sys.argv[1]) as f:
         scoring_policy,
         k,
         experiment_id,
+        strategy,
     ) = itemgetter(
         "workload",
         "geth_endpoint",
@@ -65,6 +67,7 @@ with open(sys.argv[1]) as f:
         "scoring_policy",
         "k",
         "experiment_id",
+        "strategy",
     )(
         config
     )
@@ -72,6 +75,16 @@ with open(sys.argv[1]) as f:
 model = models[workload]
 
 
+if strategy == "fedyogi":
+    from ekatrafl.base.strategy import FedYogi
+
+    initial_model = model()
+
+    strategy = FedYogi(
+        initial_parameters=ndarrays_to_parameters(
+            [val.cpu().numpy() for _, val in initial_model.state_dict.items()]
+        )
+    )
 # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -193,7 +206,10 @@ class AsyncServer(Server):
             # print(models, "models")
             models = list(zip(models, [1] * len(models)))
             # print(models, "models")
-            weight_arrays = aggregate(models)
+            if strategy == "fedyogi":
+                weight_arrays = aggregate(models)
+            else:
+                weight_arrays = aggregate(models)
             # print(weight_arrays, "weight arrays")
 
             self.set_parameters(weight_arrays)
@@ -248,11 +264,27 @@ class AsyncServer(Server):
 
 
 # Define strategy
-strategy = fl.server.strategy.FedAvg(
-    min_fit_clients=flwr_min_fit_clients,
-    min_available_clients=flwr_min_available_clients,
-    min_evaluate_clients=flwr_min_evaluate_clients,
-)
+if strategy == "fedavg":
+    strategy = fl.server.strategy.FedAvg(
+        min_fit_clients=flwr_min_fit_clients,
+        min_available_clients=flwr_min_available_clients,
+        min_evaluate_clients=flwr_min_evaluate_clients,
+    )
+elif strategy == "fedyogi":
+    strategy = fl.server.strategy.FedYogi(
+        initial_parameters=ndarrays_to_parameters(
+            [val.cpu().numpy() for _, val in initial_model.state_dict.items()]
+        ),
+        min_fit_clients=flwr_min_fit_clients,
+        min_available_clients=flwr_min_available_clients,
+        min_evaluate_clients=flwr_min_evaluate_clients,
+    )
+else:  # aggregation_policy == "fedopt"
+    strategy = fl.server.strategy.FedAvg(
+        min_fit_clients=flwr_min_fit_clients,
+        min_available_clients=flwr_min_available_clients,
+        min_evaluate_clients=flwr_min_evaluate_clients,
+    )
 
 
 def main():

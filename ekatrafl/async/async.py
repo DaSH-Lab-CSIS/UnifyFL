@@ -191,7 +191,7 @@ class AsyncServer(Server):
                 map(
                     ndarrays_to_parameters,
                     [
-                        [val.cpu().numpy() for _, val in state_dict().items()]
+                        [val.cpu().numpy() for _, val in state_dict.items()]
                         for state_dict in state_dicts
                     ],
                 )
@@ -273,7 +273,7 @@ if strategy == "fedavg":
 elif strategy == "fedyogi":
     strategy = fl.server.strategy.FedYogi(
         initial_parameters=ndarrays_to_parameters(
-            [val.cpu().numpy() for _, val in initial_model.state_dict.items()]
+            [val.cpu().numpy() for _, val in initial_model.state_dict().items()]
         ),
         min_fit_clients=flwr_min_fit_clients,
         min_available_clients=flwr_min_available_clients,

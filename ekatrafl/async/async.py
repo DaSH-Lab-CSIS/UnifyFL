@@ -82,7 +82,7 @@ if strategy == "fedyogi":
 
     strategy = FedYogi(
         initial_parameters=ndarrays_to_parameters(
-            [val.cpu().numpy() for _, val in initial_model.state_dict.items()]
+            [val.cpu().numpy() for _, val in initial_model.state_dict().items()]
         )
     )
 # DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -191,7 +191,7 @@ class AsyncServer(Server):
                 map(
                     ndarrays_to_parameters,
                     [
-                        [val.cpu().numpy() for _, val in state_dict.items()]
+                        [val.cpu().numpy() for _, val in state_dict().items()]
                         for state_dict in state_dicts
                     ],
                 )

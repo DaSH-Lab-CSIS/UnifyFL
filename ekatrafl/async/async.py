@@ -76,11 +76,11 @@ model = models[workload]
 
 
 if strategy == "fedyogi":
-    from ekatrafl.base.strategy import FedYogi
+    from ekatrafl.base.strategy import FedYogiAggregate
 
     initial_model = model()
 
-    strategy = FedYogi(
+    aggregator = FedYogiAggregate(
         initial_parameters=ndarrays_to_parameters(
             [val.cpu().numpy() for _, val in initial_model.state_dict().items()]
         )
@@ -208,6 +208,7 @@ class AsyncServer(Server):
             # print(models, "models")
             if strategy == "fedyogi":
                 weight_arrays = aggregate(models)
+                weight_arrays = aggregator.aggregate(weight_arrays)
             else:
                 weight_arrays = aggregate(models)
             # print(weight_arrays, "weight arrays")

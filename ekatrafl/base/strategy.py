@@ -35,7 +35,7 @@ from flwr.server.client_proxy import ClientProxy
 
 
 # pylint: disable=line-too-long
-class FedYogi:
+class FedYogiAggregate:
     """FedYogi [Reddi et al., 2020] strategy.
 
     Implementation based on https://arxiv.org/abs/2003.00295v5
@@ -76,10 +76,8 @@ class FedYogi:
         self.tau = tau
         self.m_t: Optional[NDArrays] = None
 
-    def aggregate(self, fedavg_parameters_aggregated: Parameters) -> Parameters:
+    def aggregate(self, fedavg_weights_aggregate: NDArrays) -> NDArrays:
         """Aggregate fit results using weighted average."""
-
-        fedavg_weights_aggregate = parameters_to_ndarrays(fedavg_parameters_aggregated)
 
         # Yogi
         delta_t: NDArrays = [
@@ -109,4 +107,4 @@ class FedYogi:
 
         self.current_weights = new_weights
 
-        return ndarrays_to_parameters(self.current_weights)
+        return self.current_weights

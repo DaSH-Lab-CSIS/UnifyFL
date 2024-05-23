@@ -13,10 +13,11 @@ if len(sys.argv) > 2:
 experiment_id = str(uuid.uuid4())
 with open("experiments.txt", "a") as f:
     f.write(f"{experiment_id}, {sys.argv}\n")
-RPC_URL = "http://10.8.1.173:8547"
+RPC_URL = "http://10.8.1.173:8545"
 
 # Generate using get_account.py
-PRIVATE_KEY = "0xbec97322819fee49724622e4d6f5af2d7b16d42e4230f276747b1a1750e3a61a"
+PRIVATE_KEY = "0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba"
+
 # os.chdir("contracts")
 c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"
 command1 = c1.split()
@@ -79,7 +80,9 @@ names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17
 #     sync = output3.decode().split("\n")[-3].split()[-1]
 #
 for i in names[1:]:
-    shell = spur.SshShell(hostname=i[0], port=i[1], username="user", password="user123")
+    shell = spur.SshShell(
+        hostname=i[0], port=i[1], username="ekatrafl", password="user123"
+    )
     result = shell.run("ls".split())
     # print(result.output)
     com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k} {experiment_id}"

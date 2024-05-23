@@ -21,7 +21,6 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class BaseClient(fl.client.NumPyClient):
     def __init__(self, model, log=False):
-        self.model = model().to(DEVICE)
         self.log = log
         super().__init__()
 
@@ -42,11 +41,12 @@ class FlowerClient(BaseClient):
         self.trainloader, self.testloader = model.load_data()
         self.optimizer = self.model.get_optimizer()
         super().__init__(model, log)
+        self.model = model().to(DEVICE)
         if os.environ.get("PRIVACY"):
             print("Privacy Enabled")
             privacy_engine = PrivacyEngine()
             self.model, self.optimizer, self.trainloader = privacy_engine.make_private(
-                module=self.model,
+                module=model().to(DEVICE),
                 optimizer=self.optimizer,
                 data_loader=self.trainloader,
                 noise_multiplier=1.1,

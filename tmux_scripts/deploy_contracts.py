@@ -6,9 +6,10 @@ import uuid
 
 # mode is 1 for sync, 2 for async
 mode = sys.argv[1]
-aggregation_policy = sys.argv[2]
-scoring_policy = sys.argv[3]
-k = sys.argv[4]
+if len(sys.argv) > 2:
+    aggregation_policy = sys.argv[2]
+    scoring_policy = sys.argv[3]
+    k = sys.argv[4]
 experiment_id = str(uuid.uuid4())
 with open("experiments.txt", "a") as f:
     f.write(f"{experiment_id}, {sys.argv}\n")
@@ -55,7 +56,10 @@ output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[-2]
 sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
 os.chdir("..")
-com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+if len(sys.argv) > 2:
+    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+else:
+    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
 names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17", 22)]

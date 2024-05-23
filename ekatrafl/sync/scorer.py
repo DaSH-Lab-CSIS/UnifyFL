@@ -77,7 +77,7 @@ def score_function(models, testloader: DataLoader):
             q.append(scorer(nn_model, testloader))
         return q
     elif scoring == "multi_krum":
-        weights = map(parameters_to_ndarrays, models)
+        weights = list(map(parameters_to_ndarrays, models))
         return scorer(weights)
 
 

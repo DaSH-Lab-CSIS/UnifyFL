@@ -41,7 +41,9 @@ class FlowerClient(BaseClient):
         self.epochs = epochs
         self.trainloader, self.testloader = model.load_data()
         self.optimizer = self.model.get_optimizer()
+        super().__init__(model, log)
         if os.environ.get("PRIVACY"):
+            print("Privacy Enabled")
             privacy_engine = PrivacyEngine()
             self.model, self.optimizer, self.trainloader = privacy_engine.make_private(
                 module=self.model,
@@ -50,7 +52,6 @@ class FlowerClient(BaseClient):
                 noise_multiplier=1.1,
                 max_grad_norm=1.0,
             )
-        super().__init__(model, log)
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)

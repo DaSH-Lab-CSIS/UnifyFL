@@ -1,4 +1,4 @@
-from typing import OrderedDict
+from typing import List, OrderedDict
 from flwr.common.typing import NDArray, Parameters
 import torch
 from torch.utils.data.dataloader import DataLoader
@@ -35,33 +35,34 @@ def set_parameters(model, parameters: NDArray):
     model.load_state_dict(state_dict, strict=True)
 
 
-def multikrum_scorer(weights):
-    R = len(weights)
-    f = R // 3 - 1
-    closest_updates = R - f - 2
 
-    keys = weights[0].keys()
-
-    return [
-        sum(
-            sorted(
-                [
-                    sum(
-                        [
-                            np.linalg.norm(
-                                weights[i][key].cpu() - weights[j][key].cpu()
-                            )
-                            for key in keys
-                        ]
-                    )
-                    for j in range(R)
-                    if j != i
-                ]
-            )[:closest_updates]
+def multikrum_scorer(
+    weights: List[NDArray],  # noqa: U100
+) -> List[float]:
+    def compute_distances(weights: List[NDArray]) -> NDArray:  # noqa: U100
+        flat_w = np.array([np.concatenate(p, axis=None).ravel() for p in weights])
+        distance_matrix = np.zeros((len(weights), len(weights)))
+        for i, flat_w_i in enumerate(flat_w):
+            for j, flat_w_j in enumerate(flat_w):
+                delta = flat_w_i - flat_w_j
+                norm = np.linalg.norm(delta)
+                distance_matrix[i, j] = norm**2
+        return distance_matrix
+    distance_matrix = compute_distances(weights)
+    f = len(weights) // 3 - 1      
+    num_closest = max(1, len(weights) - f - 2)
+    closest_indices = []
+    for distance in distance_matrix:
+        closest_indices.append(
+            np.argsort(distance)[1 : num_closest + 1].tolist()  # noqa: E203
         )
-        for i in range(R)
+    scores = [
+        np.sum(distance_matrix[i, closest_indices[i]])
+        for i in range(len(distance_matrix))
     ]
-
+    max_score = max(scores)
+    scores = [s/max_score*100 for s in scores]
+    return scores
 
 scorers = {
     "accuracy": accuracy_scorer,

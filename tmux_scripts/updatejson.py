@@ -5,7 +5,7 @@ import sys
 
 registration = sys.argv[1]
 name = sys.argv[2]
-if len(sys.argv) > 5:
+if len(sys.argv) > 6:
     aggregation_policy = sys.argv[4]
     scoring_policy = sys.argv[5]
     k = sys.argv[6]
@@ -21,7 +21,7 @@ for i in files:
         data["registration_contract_address"] = registration
         data["contract_address"] = name
         data["experiment_id"] = experiment_id
-        if len(sys.argv) > 5:
+        if len(sys.argv) > 6:
             data["aggregation_policy"] = aggregation_policy
             data["scoring_policy"] = scoring_policy
             data["k"] = k

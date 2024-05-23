@@ -28,6 +28,7 @@ torchvision = "^0.18.0"
 aioipfs = "^0.6.3"
 web3 = "^6.4.0"
 tqdm = "^4.66.1"
+opacus = "1.4.1"
 
 
 [tool.poetry.group.dev.dependencies]

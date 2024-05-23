@@ -3,9 +3,9 @@ from collections import OrderedDict
 import flwr as fl
 from flwr.common.typing import NDArray
 import torch
-import socket
-import getpass
 from ekatrafl.base.model import models
+from opacus import PrivacyEngine
+import os
 
 
 # #############################################################################
@@ -40,11 +40,21 @@ class FlowerClient(BaseClient):
     def __init__(self, model, log=False, epochs=1):
         self.epochs = epochs
         self.trainloader, self.testloader = model.load_data()
+        self.optimizer = self.model.get_optimizer()
+        if os.environ.get("PRIVACY"):
+            privacy_engine = PrivacyEngine()
+            self.model, self.optimizer, self.trainloader = privacy_engine.make_private(
+                module=self.model,
+                optimizer=self.optimizer,
+                data_loader=self.trainloader,
+                noise_multiplier=1.1,
+                max_grad_norm=1.0,
+            )
         super().__init__(model, log)
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-        self.model.train_model(self.trainloader, epochs=self.epochs)
+        self.model.train_model(self.trainloader, self.epochs, self.optimizer)
         return self.get_parameters(config={}), len(self.trainloader.dataset), {}
 
     def evaluate(self, parameters, config):

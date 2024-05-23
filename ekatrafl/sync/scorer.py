@@ -75,7 +75,7 @@ def score_function(models, testloader: DataLoader):
             weights = parameters_to_ndarrays(model_dict)
             set_parameters(nn_model, weights)
             q.append(scorer(nn_model, testloader))
-        return q
+        return q[1]
     elif scoring == "multi_krum":
         weights = list(map(parameters_to_ndarrays, models))
         return scorer(weights)
@@ -100,12 +100,11 @@ async def score_model(round: int, cids: str):
             testloader,
         ),
     ):
-        # score is now a tuple of loss and accuracy
         # print(score)
-        logger.info(f"model: {cid} -> score: {(score[1] * 100):>0.1f}")
+        logger.info(f"model: {cid} -> score: {(score * 100):>0.1f}")
         try:
             sync_contract.functions.submitScore(
-                round, cid, int(score[1] * 1000)
+                round, cid, int(score * 1000)
             ).transact()
         except:
             pass

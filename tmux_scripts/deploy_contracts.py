@@ -85,7 +85,10 @@ for i in names[1:]:
     )
     result = shell.run("ls".split())
     # print(result.output)
-    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} {'a' if mode=='1' else ''}sync {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+    if len(sys.argv) > 2:
+        com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+    else:
+        com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
     print(com2)
     shell.run(com2.split())
     print(f"ran for {i}")

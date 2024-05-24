@@ -35,7 +35,6 @@ def set_parameters(model, parameters: NDArray):
     model.load_state_dict(state_dict, strict=True)
 
 
-
 def multikrum_scorer(
     weights: List[NDArray],  # noqa: U100
 ) -> List[float]:
@@ -48,8 +47,9 @@ def multikrum_scorer(
                 norm = np.linalg.norm(delta)
                 distance_matrix[i, j] = norm**2
         return distance_matrix
+
     distance_matrix = compute_distances(weights)
-    f = len(weights) // 3 - 1      
+    f = len(weights) // 3 - 1
     num_closest = max(1, len(weights) - f - 2)
     closest_indices = []
     for distance in distance_matrix:
@@ -57,12 +57,13 @@ def multikrum_scorer(
             np.argsort(distance)[1 : num_closest + 1].tolist()  # noqa: E203
         )
     scores = [
-        np.sum(distance_matrix[i, closest_indices[i]])
+        1 / np.sum(distance_matrix[i, closest_indices[i]])
         for i in range(len(distance_matrix))
     ]
     max_score = max(scores)
-    scores = [s/max_score*100 for s in scores]
+    scores = [s / max_score * 100 for s in scores]
     return scores
+
 
 scorers = {
     "accuracy": accuracy_scorer,

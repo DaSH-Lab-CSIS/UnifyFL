@@ -18,6 +18,7 @@ async-agg = "ekatrafl.async.async:main"
 async-scorer = "ekatrafl.async.scorer:main"
 base-sup="ekatrafl.baseline.super:main"
 base-agg="ekatrafl.baseline.agg:main"
+single-level='ekatrafl.base.single:main'
 
 
 [tool.poetry.dependencies]

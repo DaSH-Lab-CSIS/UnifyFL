@@ -3,8 +3,8 @@ requires = ["poetry-core>=1.4.0"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "ekatrafl"
-version = "0.1.0"
+name = "unifyfl"
+version = "1.0.0"
 description = ""
 authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa.bits-pilani.ac.in>"]
 

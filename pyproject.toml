@@ -6,7 +6,7 @@ build-backend = "poetry.masonry.api"
 name = "unifyfl"
 version = "1.0.0"
 description = ""
-authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa.bits-pilani.ac.in>"]
+authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa.bits-pilani.ac.in>", "Aditya Shiva Sharma <f20221159@goa.bits-pilani.ac.in>"]
 
 
 [tool.poetry.scripts]

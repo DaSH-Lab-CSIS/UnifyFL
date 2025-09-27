@@ -9,6 +9,13 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import Compose, Normalize, ToTensor
 from torch.utils.data import DataLoader
 
+try:
+    from datasets import Dataset, DatasetDict
+    DATASETS_AVAILABLE = True
+except ImportError:
+    DATASETS_AVAILABLE = False
+    print("Warning: datasets library not available. Install with 'pip install datasets' to use HuggingFace format.")
+
 random.seed(42)
 np.random.seed(42)
 
@@ -139,6 +146,36 @@ def divide_test_data(NUM_USERS, SRC_CLASSES, test_data, Labels, unknown_test):
     return test_X, test_y
 
 
+def save_as_huggingface_dataset(dataset_dict, data_path, mode):
+    """Save dataset in HuggingFace datasets format"""
+    if not DATASETS_AVAILABLE:
+        raise ImportError("datasets library not available. Install with 'pip install datasets'")
+    
+    # Convert the nested structure to a flat structure suitable for HuggingFace datasets
+    all_data = []
+    for user_id, user_name in enumerate(dataset_dict["users"]):
+        user_data = dataset_dict["user_data"][user_name]
+        x_data = user_data["x"].numpy()
+        y_data = user_data["y"].numpy()
+        
+        for i in range(len(x_data)):
+            all_data.append({
+                "user_id": user_id,
+                "user_name": user_name,
+                "image": x_data[i],
+                "label": int(y_data[i])
+            })
+    
+    # Create HuggingFace dataset
+    hf_dataset = Dataset.from_list(all_data)
+    
+    # Save to disk
+    hf_dataset.save_to_disk(data_path)
+    print(f"Saved HuggingFace dataset to {data_path}")
+    
+    return hf_dataset
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -146,8 +183,8 @@ def main():
         "-f",
         type=str,
         default="pt",
-        help="Format of saving: pt (torch.save), json",
-        choices=["pt", "json"],
+        help="Format of saving: pt (torch.save), json, hf (HuggingFace datasets)",
+        choices=["pt", "json", "hf"],
     )
     parser.add_argument(
         "--n_class", type=int, default=10, help="number of classification labels"
@@ -180,12 +217,18 @@ def main():
         help="number of local clients, should be muitiple of 10.",
     )
     args = parser.parse_args()
+    
+    # Check if HuggingFace format is requested but library is not available
+    if args.format == "hf" and not DATASETS_AVAILABLE:
+        raise ImportError("datasets library not available. Install with 'pip install datasets' to use HuggingFace format.")
+    
     print()
     print("Number of users: {}".format(args.n_user))
     print("Number of classes: {}".format(args.n_class))
     print("Min # of samples per uesr: {}".format(args.min_sample))
     print("Alpha for Dirichlet Distribution: {}".format(args.alpha))
     print("Ratio for Sampling Training Data: {}".format(args.sampling_ratio))
+    print("Save format: {}".format(args.format))
     NUM_USERS = args.n_user
 
     # Setup directory for train/test data
@@ -226,18 +269,24 @@ def main():
         if not os.path.exists(data_path):
             os.makedirs(data_path)
 
-        data_path = os.path.join(data_path, "{}.".format(mode) + args.format)
-        if args.format == "json":
-            raise NotImplementedError(
-                "json is not supported because the train_data/test_data uses the tensor instead of list and tensor cannot be saved into json."
-            )
-            with open(data_path, "w") as outfile:
-                print(f"Dumping train data => {data_path}")
-                json.dump(dataset, outfile)
-        elif args.format == "pt":
-            with open(data_path, "wb") as outfile:
-                print(f"Dumping train data => {data_path}")
-                torch.save(dataset, outfile)
+        if args.format == "hf":
+            # For HuggingFace format, use a different file structure
+            data_path = os.path.join(data_path, f"{mode}_dataset")
+            save_as_huggingface_dataset(dataset, data_path, mode)
+        else:
+            data_path = os.path.join(data_path, "{}.".format(mode) + args.format)
+            if args.format == "json":
+                raise NotImplementedError(
+                    "json is not supported because the train_data/test_data uses the tensor instead of list and tensor cannot be saved into json."
+                )
+                with open(data_path, "w") as outfile:
+                    print(f"Dumping train data => {data_path}")
+                    json.dump(dataset, outfile)
+            elif args.format == "pt":
+                with open(data_path, "wb") as outfile:
+                    print(f"Dumping train data => {data_path}")
+                    torch.save(dataset, outfile)
+        
         if mode == "train":
             for u in range(NUM_USERS):
                 print("{} samples in total".format(samples_per_user[u]))

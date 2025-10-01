@@ -7,7 +7,7 @@ name = "unifyfl"
 version = "1.0.0"
 description = ""
 authors = ["Sarang S <f20210966@goa.bits-pilani.ac.in>", "Druva D <f20220131@goa.bits-pilani.ac.in>", "Aditya Shiva Sharma <f20221159@goa.bits-pilani.ac.in>"]
-
+packages = [{include = "ekatrafl"}]
 
 [tool.poetry.scripts]
 party = "ekatrafl.base.client:main"
@@ -30,6 +30,8 @@ aioipfs = "^0.6.3"
 web3 = "^6.4.0"
 tqdm = "^4.66.1"
 opacus = "1.4.1"
+spur = "^0.3.23"
+datasets = "^4.1.1"
 
 
 [tool.poetry.group.dev.dependencies]

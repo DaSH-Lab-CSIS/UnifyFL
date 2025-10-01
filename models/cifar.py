@@ -9,6 +9,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import Compose, Normalize, ToTensor
 from tqdm import tqdm
 import os
+import numpy as np
 
 
 from datasets import load_from_disk
@@ -16,7 +17,9 @@ from datasets import load_from_disk
 
 def apply_transforms(batch):
     transforms = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    batch["img"] = [transforms(img) for img in batch["img"]]
+    # print(batch.keys())
+    # print(np.array(batch['image'][0]).shape)
+    batch["image"] = [transforms(np.transpose(np.array(img), (1, 2, 0))) for img in batch["image"]]
     return batch
 
 
@@ -49,14 +52,14 @@ class CIFAR10Model(nn.Module):
         x = F.relu(self.fc2(x))
         return self.fc3(x)
 
-    def train_model(self, trainloader, epochs):
+    def train_model(self, trainloader, epochs, optimizer):
         """Train the model on the training set."""
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
         self.train()
         for _ in range(epochs):
             for batch in tqdm(trainloader):
-                images, labels = batch["img"].to(DEVICE).float(), batch["label"].to(
+                images, labels = batch["image"].to(DEVICE).float(), batch["label"].to(
                     DEVICE
                 )
                 optimizer.zero_grad()
@@ -71,7 +74,7 @@ class CIFAR10Model(nn.Module):
         with torch.no_grad():
             for batch in tqdm(testloader):
                 images, labels = (
-                    batch["img"].to(DEVICE).float(),
+                    batch["image"].to(DEVICE).float(),
                     batch["label"].to(DEVICE),
                 )
                 outputs = self(images)
@@ -81,6 +84,9 @@ class CIFAR10Model(nn.Module):
         accuracy = correct / total
         loss = loss / len(testloader)
         return loss, accuracy
+    
+    def get_optimizer(self):
+        return torch.optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
 
     @staticmethod
     def load_data():

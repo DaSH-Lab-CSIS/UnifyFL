@@ -1,4 +1,6 @@
 # To be run from the base folder, it moves into blockchain folder to run commands.
+# Arguments python3 tmux_scripts/deploy_contracts.py <async/sync> pick_top_k assign_score_mean 1
+#TODO: add other policies
 import subprocess, sys
 import spur
 import os
@@ -13,15 +15,15 @@ if len(sys.argv) > 2:
 experiment_id = str(uuid.uuid4())
 with open("experiments.txt", "a") as f:
     f.write(f"{experiment_id}, {sys.argv}\n")
-RPC_URL = "http://10.8.1.173:8545"
+RPC_URL = "http://127.0.0.1:8545"
 
 # Generate using get_account.py
-PRIVATE_KEY = "0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba"
+PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 
 # os.chdir("contracts")
-c1 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"
+c1 = f"forge create --rpc-url {RPC_URL} --broadcast --private-key {PRIVATE_KEY} contracts/Registration.sol:Registration"
 command1 = c1.split()
-c2 = f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY}  contracts/RandomNumbers.sol:RandomNumbers"
+c2 = f"forge create --rpc-url {RPC_URL} --broadcast --private-key {PRIVATE_KEY} contracts/RandomNumbers.sol:RandomNumbers"
 command2 = c2.split()
 
 print(c1)
@@ -38,7 +40,7 @@ random_numbers = output2.decode().split("\n")[-3].split()[-1]
 
 if mode == "1":
     c3 = (
-        f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/AsyncRound.sol:AsyncRound"
+        f"forge create --rpc-url {RPC_URL} --broadcast --private-key {PRIVATE_KEY} contracts/AsyncRound.sol:AsyncRound"
         + " --constructor-args "
         + random_numbers
         + " "
@@ -46,7 +48,7 @@ if mode == "1":
     )
 else:
     c3 = (
-        f"forge create --rpc-url {RPC_URL} --private-key {PRIVATE_KEY} contracts/SyncRound.sol:SyncRound"
+        f"forge create --rpc-url {RPC_URL} --broadcast --private-key {PRIVATE_KEY} contracts/SyncRound.sol:SyncRound"
         + " --constructor-args "
         + random_numbers
         + " "
@@ -58,9 +60,9 @@ sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
 os.chdir("..")
 if len(sys.argv) > 2:
-    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+    com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
 else:
-    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
+    com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
 names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17", 22)]
@@ -86,9 +88,9 @@ for i in names[1:]:
     result = shell.run("ls".split())
     # print(result.output)
     if len(sys.argv) > 2:
-        com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+        com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
     else:
-        com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
+        com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
     print(com2)
     shell.run(com2.split())
     print(f"ran for {i}")

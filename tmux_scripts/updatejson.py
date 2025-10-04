@@ -14,7 +14,7 @@ else:
     experiment_id = sys.argv[4]
 files = ["agg.config.json"]
 
-os.chdir(f"EkatraFL/configs/{sys.argv[3]}")
+os.chdir(f"configs/{sys.argv[3]}")
 for i in files:
     with open(i, "r") as jsonFile:
         data = json.load(jsonFile)

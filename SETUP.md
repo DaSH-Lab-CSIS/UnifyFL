@@ -9,7 +9,7 @@
 
 # Run the blockchain
 - Run the command `anvil`
-- Copy a private key from the terminal output to tmux_scripts/deploy_contracts.py
+- Copy a private key from the terminal output to `tmux_scripts/deploy_contracts.py`
 # Deploy the smart contracts
 - `python tmux_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 1`
 - This copies the deployed smart contract ids to the respective config file, this needs to be rerun before every new run for each experiment
@@ -26,10 +26,12 @@
 
 # Update configs 
 - Copy account id to `configs/async/agg.config.json` and `configs/sync/agg.config.json`
-- update local IPs and experiment parameters: including IPFS, goeth IPS, 
 - Clients need to be configured with Aggregator server IPs, model info, and epochs
+- Default parameter is the cifar10 dataset, with 5 epochs.
 
 # Running the experiments
+- These commands need be run in parallel, on separate shells, ideally use a terminal multiplexor such as tmux to run them at the same time
+- The config is configured by default to run with 1 client, edit the relevant config `configs/(a)sync/agg.config.json` file to run multiple clients at once.
 ## Run the Aggregator Server
 ### Async
 - `poetry run async-agg configs/async.json`

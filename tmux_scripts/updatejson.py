@@ -3,6 +3,12 @@ import os
 import json
 import sys
 
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+os.chdir("..")
+print(os.getcwd())
 registration = sys.argv[1]
 name = sys.argv[2]
 if len(sys.argv) > 6:

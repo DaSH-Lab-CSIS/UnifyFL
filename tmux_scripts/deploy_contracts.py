@@ -60,12 +60,16 @@ sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
 os.chdir("..")
 if len(sys.argv) > 2:
-    com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
 else:
-    com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
+    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
-names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17", 22)]
+names = []
+
+# Change names if you want to update multiple aggregator hosts with the correct config
+# names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17", 22)]
+
 # if mode == "1":
 #     c3 = (
 #         "forge create --rpc-url {RPC_URL} --private-key 0x9b19a5202b4678b62adc4af295c791b74a04f1bced3f014772f82cd60f919989 src/SyncRound.sol:SyncRound"

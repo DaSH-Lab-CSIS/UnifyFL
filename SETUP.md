@@ -14,8 +14,8 @@
 - `python tmux_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 1`
 - This copies the deployed smart contract ids to the respective config file, this needs to be rerun before every new run for each experiment
 - First parameter 0 => async 1=> sync
-- Second parameter - pick_top_k etc: refer to `ekatrafl/base/policies.py` - Recommended pick_top_k , pick_all
-- Third parameter - assign_score_mean, etc: refer to `ekatrafl/base/policies.py` - Recommended assign_score_mean
+- Second parameter - pick_top_k etc: refer to `unifyfl/base/policies.py` - Recommended pick_top_k , pick_all
+- Third parameter - assign_score_mean, etc: refer to `unifyfl/base/policies.py` - Recommended assign_score_mean
 - Fourth parameter - k - Only used if some policy that is dependent on k - Always for the script to work
 
 

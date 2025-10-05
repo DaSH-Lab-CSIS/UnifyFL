@@ -3,7 +3,7 @@ from collections import OrderedDict
 import flwr as fl
 from flwr.common.typing import NDArray
 import torch
-from ekatrafl.base.model import models
+from unifyfl.base.model import models
 from opacus import PrivacyEngine
 import os
 

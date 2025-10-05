@@ -3,24 +3,28 @@ from collections import OrderedDict
 import json
 from operator import itemgetter
 from time import sleep
-from ekatrafl.base.policies import pick_selected_model
-from flwr.common import NDArray, ndarrays_to_parameters, parameters_to_ndarrays
+from unifyfl.base.policies import pick_selected_model
+
+# from flwr.common import NDArray, parameters_to_ndarrays
 
 from datetime import datetime
 import logging
 import sys
 import asyncio
+import random
 
 from web3 import Web3
-from ekatrafl.base.contract import create_reg_contract, create_sync_contract
-from ekatrafl.base.custom_server import Server
+from web3.middleware import geth_poa_middleware
+from unifyfl.base.contract import create_reg_contract, create_sync_contract
+from unifyfl.base.custom_server import Server
 
 # import wandb
 
-from ekatrafl.base.ipfs import load_models, save_model_ipfs
-import flwr as fl
-from flwr.server.strategy.aggregate import aggregate
-from ekatrafl.base.model import models
+from unifyfl.base.ipfs import load_models, save_model_ipfs
+
+# import flwr as fl
+# from flwr.server.strategy.aggregate import aggregate
+from unifyfl.base.model import models
 import torch
 import os
 
@@ -75,10 +79,7 @@ model = models[workload]
 
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
-if os.getenv("POA"):
-    from web3.middleware import geth_poa_middleware
-
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = geth_account
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
@@ -114,7 +115,6 @@ class SyncServer(Server):
         self.round_ongoing = False
         self.model = model()
         self.round_id = 0
-        self.cid = None
         registration_contract.functions.registerNode("trainer").transact()
         # self.single_round()
         # removed threading
@@ -143,18 +143,15 @@ class SyncServer(Server):
             sleep(1)
 
     def aggregate_models(self):
-        global_models = list(
-            filter(
-                lambda x: x[0] != "",
-                zip(*sync_contract.functions.getLatestModelsWithScores().call()),
-            )
+        global_models = filter(
+            lambda x: x[0] != "",
+            zip(*sync_contract.functions.getLatestModelsWithScores().call()),
         )
         if len(list(global_models)) == 0:
-            print("no global models")
             return
 
         selected_models = pick_selected_model(
-            global_models, aggregation_policy, scoring_policy, int(k), self.cid
+            global_models, aggregation_policy, scoring_policy, int(k)
         )
 
         if len(selected_models) > 0:
@@ -163,26 +160,27 @@ class SyncServer(Server):
             param_list = loop.run_until_complete(
                 load_models(selected_models, ipfs_host)
             )
-            models = list(map(parameters_to_ndarrays, param_list))
+            # models = list(map(parameters_to_ndarrays, param_list))
             # TODO: we are giving equal weightage for model aggregation
             models = list(zip(models, [1] * len(models)))
-            weight_arrays = aggregate(models)
+            # weight_arrays = aggregate(models)
 
-            self.server.parameters = ndarrays_to_parameters(weight_arrays)
-            self.set_parameters(weight_arrays)
+            # self.set_parameters(weight_arrays)
 
             cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
             # TODO: add host to save path
             torch.save(
                 self.model.state_dict(),
-                f"save/sync/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
+                f"save/async/{workload}/{experiment_id}/{self.round_id:02d}-{cur_time}-global.pt",
             )
-        else:
-            print("no selected models")
 
     def single_round(self):
         self.aggregate_models()
         self.round_ongoing = True
+        self.round_id += 1
+        if self.round_id >= 100:
+            # wandb.finish()
+            exit()
         logger.info(f"Round {self.round_id} started")
         parameters = self.start_round()
 
@@ -190,8 +188,9 @@ class SyncServer(Server):
             print("Error")
             return
         parameters = parameters[0]
-        weights = parameters_to_ndarrays(parameters)
-        self.set_parameters(weights)
+        # weights = parameters_to_ndarrays(parameters)
+        # self.set_parameters(weights)
+        self.set_parameters(random.randint(0, 100))
         self.round_ongoing = False
         cur_time = str(datetime.now().strftime("%d-%H-%M-%S"))
         # TODO: add host to save path
@@ -202,7 +201,6 @@ class SyncServer(Server):
 
         cid = asyncio.run(save_model_ipfs(parameters, ipfs_host))
         logger.info(f"Model saved to IPFS with CID: {cid}")
-        self.cid = cid
         try:
             sync_contract.functions.submitModel(cid).transact()
         except:
@@ -212,21 +210,21 @@ class SyncServer(Server):
 
 
 # Define strategy
-strategy = fl.server.strategy.FedAvg(
-    min_fit_clients=flwr_min_fit_clients,
-    min_available_clients=flwr_min_available_clients,
-    min_evaluate_clients=flwr_min_evaluate_clients,
-)
+# strategy = fl.server.strategy.FedAvg(
+#     min_fit_clients=flwr_min_fit_clients,
+#     min_available_clients=flwr_min_available_clients,
+#     min_evaluate_clients=flwr_min_evaluate_clients,
+# )
 
 
 def main():
     """Start server and train model."""
-    # import socket
-    # import getpass
+    import socket
+    import getpass
 
     # wandb.login()
     # wandb.init(
-    #     project="ekatrafl",
+    #     project="unifyfl",
     #     config={
     #         "workload": "cifar10",
     #         "aggregation_policy": aggregation_policy,
@@ -236,7 +234,7 @@ def main():
     #     group=experiment_id,
     #     name=f"{socket.gethostname() if socket.gethostname() != 'raspberrypi' else getpass.getuser()}-sync-agg",
     # )
-    SyncServer(server_address=flwr_server_address, strategy=strategy)
+    # SyncServer(server_address=flwr_server_address, strategy=strategy)
 
 
 if __name__ == "__main__":

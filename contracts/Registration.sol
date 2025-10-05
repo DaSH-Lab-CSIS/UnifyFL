@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 /**
  * @title Registration
- * @dev This contract manages the registration of nodes as trainers or scorers within the EkatraFL project.
+ * @dev This contract manages the registration of nodes as trainers or scorers within the UnifyFL project.
  */
 contract Registration {
     mapping(address => string[]) public nodes; // Mapping of node addresses to their types

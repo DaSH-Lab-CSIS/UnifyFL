@@ -9,7 +9,7 @@ import os
 import flwr as fl
 from flwr.common.typing import Scalar
 import torch
-from ekatrafl.base.model import models
+from unifyfl.base.model import models
 
 import logging
 from operator import itemgetter
@@ -118,7 +118,7 @@ def main():
     )
 
     # wandb.init(
-    #     project="ekatrafl",
+    #     project="unifyfl",
     #     config={
     #         "workload": "cifar10",
     #     },

@@ -1,25 +1,20 @@
 import asyncio
-import getpass
 import json
 import logging
-import math
-import socket
+import torch
 import sys
 from time import sleep
 from operator import itemgetter
+import os
 
-# from flwr.common import parameters_to_ndarrays
-# import torch
 # import wandb
-# from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader, Subset
 from web3 import Web3
-import random
 
-from web3.middleware import geth_poa_middleware
-from ekatrafl.base.contract import create_async_contract, create_reg_contract
+from unifyfl.base.contract import create_async_contract, create_reg_contract
 
-# from ekatrafl.base.ipfs import load_model_ipfs
-# from ekatrafl.base.model import accuracy_scorer, models, scorers, set_parameters
+from unifyfl.base.ipfs import load_model_ipfs
+from unifyfl.base.model import accuracy_scorer, models, scorers, set_parameters
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -54,22 +49,43 @@ with open(sys.argv[1]) as f:
         config
     )
 
-# logger.info(f"Model: {model.__name__}")
-# logger.info(f"Scorer: {scorer.__name__}")
+model = models[workload]
+scorer = scorers[scoring]
+
+logger.info(f"Model: {model.__name__}")
+logger.info(f"Scorer: {scorer.__name__}")
 
 w3 = Web3(Web3.HTTPProvider(geth_endpoint))
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+if os.getenv("GETH_POA"):
+    from web3.middleware import geth_poa_middleware
+
+    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 w3.eth.default_account = account
+
+testset = model.get_testset()
+testloader = DataLoader(
+    testset,
+    # Subset(testset, torch.randperm(len(testset))[: math.floor(len(testset) / 2)]),
+    batch_size=64,
+)
 
 registration_contract = create_reg_contract(w3, registration_contract_address)
 async_contract = create_async_contract(w3, async_contract_address)
 
 
 async def score_model(trainer: str, cid: str):
-    # model = models[workload]()
+    DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
+    model = models[workload]().to(DEVICE)
     logger.info(f"Model recevied to score with CID: {cid}")
-    async_contract.functions.submitScore(cid, random.randint(0, 100)).transact()
-    logger.info(f"Model scores submitted to contract")
+    # model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
+    model.load_state_dict(await load_model_ipfs(cid, ipfs_host))
+
+    logger.info("Model pull from IPFS")
+    loss, accuracy = accuracy_scorer(model, testloader)
+    logger.info(f"Accuracy: {(accuracy*100):>0.2f}%")
+    logger.info(f"Loss: {(loss):>0.2f}")
+    async_contract.functions.submitScore(cid, int(accuracy * 1000)).transact()
+    logger.info("Model scores submitted to contract")
 
 
 def main():
@@ -77,7 +93,7 @@ def main():
     events = set()
     last_seen_block = w3.eth.block_number
     # wandb.init(
-    #     project="ekatrafl",
+    #     project="unifyfl",
     #     config={
     #         "workload": "cifar10",
     #         "scorer": scoring,

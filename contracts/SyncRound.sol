@@ -7,7 +7,7 @@ import "./Registration.sol";
 
 /**
  * @title SyncRound
- * @dev This contract manages synchronous rounds of federated learning within the EkatraFL project.
+ * @dev This contract manages synchronous rounds of federated learning within the UnifyFL project.
  */
 contract SyncRound {
     RandomNumbers randomNumbers; // Instance of RandomNumbers contract

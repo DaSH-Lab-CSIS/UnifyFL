@@ -5,8 +5,8 @@ from operator import itemgetter
 import socket
 from flwr.common import parameters_to_ndarrays
 import torch
-from ekatrafl.base.custom_server import Server
-from ekatrafl.base.client import BaseClient
+from unifyfl.base.custom_server import Server
+from unifyfl.base.client import BaseClient
 import flwr as fl
 import sys
 import json
@@ -18,7 +18,7 @@ import os
 # wandb.login()
 
 
-from ekatrafl.base.model import models
+from unifyfl.base.model import models
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -89,7 +89,7 @@ def main():
     )
 
     # wandb.init(
-    #     project="ekatrafl",
+    #     project="unifyfl",
     #     config={
     #         "workload": "cifar10",
     #     },

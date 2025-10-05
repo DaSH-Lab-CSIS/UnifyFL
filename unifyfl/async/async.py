@@ -3,7 +3,7 @@ from collections import OrderedDict
 import json
 from operator import itemgetter
 
-from ekatrafl.base.policies import pick_selected_model
+from unifyfl.base.policies import pick_selected_model
 from flwr.common import parameters_to_ndarrays, ndarrays_to_parameters
 
 from datetime import datetime
@@ -15,13 +15,13 @@ from web3 import Web3
 from time import sleep
 
 # import wandb
-from ekatrafl.base.contract import create_reg_contract, create_async_contract
-from ekatrafl.base.custom_server import Server
+from unifyfl.base.contract import create_reg_contract, create_async_contract
+from unifyfl.base.custom_server import Server
 
-from ekatrafl.base.ipfs import load_models, save_model_ipfs
+from unifyfl.base.ipfs import load_models, save_model_ipfs
 import flwr as fl
 from flwr.server.strategy.aggregate import aggregate
-from ekatrafl.base.model import models
+from unifyfl.base.model import models
 import torch
 import os
 
@@ -76,7 +76,7 @@ model = models[workload]
 
 
 if strategy == "fedyogi":
-    from ekatrafl.base.strategy import FedYogiAggregate
+    from unifyfl.base.strategy import FedYogiAggregate
 
     initial_model = model()
 
@@ -291,7 +291,7 @@ else:  # aggregation_policy == "fedopt"
 def main():
     """Start server and train model."""
     # wandb.init(
-    #     project="ekatrafl",
+    #     project="unifyfl",
     #     config={
     #         "workload": "cifar10",
     #         "aggregation_policy": aggregation_policy,

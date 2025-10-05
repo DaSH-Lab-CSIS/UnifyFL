@@ -20,7 +20,7 @@ from flwr.server.strategy import Strategy
 # wandb.login()
 
 # id_name = input("Enter the ID for this run: ")
-# run = wandb.init(project="ekatrafl", id = id_name)
+# run = wandb.init(project="unifyfl", id = id_name)
 
 
 class Server(fl.server.Server):

@@ -1,7 +1,7 @@
 # /home/user/.config/tmuxinator/baseline.yml
 
 name: async
-root: ~/EkatraFL
+root: ~/UnifyFL
 
 windows:
   - aggregators:
@@ -11,37 +11,37 @@ windows:
       # synchronize: after
       panes:
         - d2:
-            - conda activate ekatrafl
+            - conda activate unifyfl
             - python3 scripts/deploy_contracts.py 1 pick_top_2 assign_score_mean 1
         - d2:
-            - cd ~/EkatraFL
-            - conda activate ekatrafl
+            - cd ~/UnifyFL
+            - conda activate unifyfl
             - poetry run async-agg configs/async/agg.config.json
         - d3:
             - ssh user@10.8.1.48
-            - cd ~/EkatraFL
-            - . /home/user/.cache/pypoetry/virtualenvs/ekatrafl-pPnP7Z4X-py3.10/bin/activate
+            - cd ~/UnifyFL
+            - . /home/user/.cache/pypoetry/virtualenvs/unifyfl-pPnP7Z4X-py3.10/bin/activate
             - poetry run async-agg configs/async/agg.config.json
         - d4:
             - ssh user@10.8.1.44 -p 222
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - conda activate tinyfl
             - poetry run async-agg configs/async/agg.config.json
   - scorers:
       layout: tiled
       panes:
         - d2:
-            - cd ~/EkatraFL
-            - conda activate ekatrafl
+            - cd ~/UnifyFL
+            - conda activate unifyfl
             - poetry run async-scorer configs/async/agg.config.json
         - d3:
             - ssh user@10.8.1.48
-            - cd ~/EkatraFL
-            - . /home/user/.cache/pypoetry/virtualenvs/ekatrafl-pPnP7Z4X-py3.10/bin/activate
+            - cd ~/UnifyFL
+            - . /home/user/.cache/pypoetry/virtualenvs/unifyfl-pPnP7Z4X-py3.10/bin/activate
             - poetry run async-scorer configs/async/agg.config.json
         - d4:
             - ssh user@10.8.1.44 -p 222
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - conda activate tinyfl
             - poetry run async-scorer configs/async/agg.config.json
   - rpi:
@@ -50,21 +50,21 @@ windows:
         - rpi1:
             - ssh rpi3@10.8.1.192
             - conda activate tinyfl
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - poetry run party configs/party.json
         - rpi2:
             - ssh rpi2@10.8.1.43
             - conda activate tinyfl
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - poetry run party configs/party.json
         - rpi3:
             - ssh rpi3@10.8.1.38
             - conda activate tinyfl
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - poetry run party configs/party.json
         - rpi4:
             - ssh rpi4@10.8.1.28
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - conda activate tinyfl-3.10
             - poetry run party configs/party.json
   - nano:
@@ -72,12 +72,12 @@ windows:
       panes:
         - nano2:
             - ssh user@10.8.1.155
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - conda activate tinyfl
             - poetry run party configs/party.json
         - nano4:
             - ssh user@10.8.1.27
-            - cd ~/EkatraFL
+            - cd ~/UnifyFL
             - conda activate tinyfl
             - poetry run party configs/party.json
   - geth:

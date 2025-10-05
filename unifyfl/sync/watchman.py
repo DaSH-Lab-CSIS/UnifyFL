@@ -9,7 +9,7 @@ from web3.middleware import geth_poa_middleware
 import sys
 
 
-from ekatrafl.base.contract import create_sync_contract
+from unifyfl.base.contract import create_sync_contract
 
 logging.basicConfig(
     stream=sys.stdout,

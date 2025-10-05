@@ -60,9 +60,9 @@ sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
 os.chdir("..")
 if len(sys.argv) > 2:
-    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+    com2 = f"python3 UnifyFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
 else:
-    com2 = f"python3 EkatraFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
+    com2 = f"python3 UnifyFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
 names = []
@@ -87,7 +87,7 @@ names = []
 #
 for i in names[1:]:
     shell = spur.SshShell(
-        hostname=i[0], port=i[1], username="ekatrafl", password="user123"
+        hostname=i[0], port=i[1], username="unifyfl", password="user123"
     )
     result = shell.run("ls".split())
     # print(result.output)

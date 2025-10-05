@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Solidity smart contracts used in the EkatraFL project that facilitate various functionalities of the orchestrator.
+The Solidity smart contracts used in the UnifyFL project that facilitate various functionalities of the orchestrator.
 
 ### 1. Registration.sol
 
@@ -10,7 +10,7 @@ The Registration contract manages the registration of nodes as trainers or score
 
 ### 2. RandomNumbers.sol
 
-The RandomNumbers contract provides functionality to generate a random permutation of an array of addresses. This functionality is utilized in the EkatraFL project to randomly assign scorers for scoring models during each round of federated learning.
+The RandomNumbers contract provides functionality to generate a random permutation of an array of addresses. This functionality is utilized in the UnifyFL project to randomly assign scorers for scoring models during each round of federated learning.
 
 ### 3. SyncRound.sol
 

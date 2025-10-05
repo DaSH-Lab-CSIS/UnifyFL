@@ -8,8 +8,8 @@
 - Poetry 1.4 - Install project dependencies with `poetry install`
 
 # Run the blockchain
-- `anvil`
-- Copy private id to tmux_scripts/deploy_contracts.py
+- Run the command `anvil`
+- Copy a private key from the terminal output to tmux_scripts/deploy_contracts.py
 # Deploy the smart contracts
 - `python tmux_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 1`
 - This copies the deployed smart contract ids to the respective config file, this needs to be rerun before every new run for each experiment

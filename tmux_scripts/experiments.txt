@@ -1,3 +1,0 @@
-65c61e07-094a-456f-ae13-871601f97bf7, ['deploy_contracts.py', '1', 'pick_top_k', 'assign_score_mean', '3']
-cb64c203-3639-4d41-8f77-510119b0922e, ['deploy_contracts.py', '1', 'pick_top_k', 'assign_score_mean', '3']
-7ac6ae6d-46ae-4349-86cb-04eda35b4715, ['deploy_contracts.py', '1', 'pick_top_k', 'assign_score_mean', '3']

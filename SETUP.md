@@ -1,7 +1,6 @@
 # Dependencies
-- [go-ethereum](https://geth.ethereum.org/) or [anvil](https://book.getfoundry.sh/anvil/) ( for single node runs)
 - [IPFS](https://docs.ipfs.tech/install/command-line/#install-official-binary-distributions) v17 
-- [forge](https://book.getfoundry.sh/forge/)
+- [forge](https://book.getfoundry.sh/forge/), this installs anvil as well
 
 # Python Dependencies
 - Python 3.10

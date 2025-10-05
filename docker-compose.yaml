@@ -1,0 +1,162 @@
+version: '3.8'
+
+services:
+  train_container_0:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=0
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_1:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=1
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_2:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=2
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_3:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=3
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_4:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=4
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_5:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=5
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_6:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=6
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_7:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=7
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_8:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=8
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_9:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=9
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_10:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=10
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_11:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=11
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_12:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=12
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_13:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=13
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_14:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=14
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_15:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=15
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_16:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=16
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_17:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=17
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_18:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=18
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"
+
+  train_container_19:
+    image: ekatrafl
+    environment:
+      - TRAIN_SET=19
+    mem_limit: 1g
+    restart: no
+    network_mode: "host"

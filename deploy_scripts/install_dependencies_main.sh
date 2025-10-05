@@ -23,7 +23,7 @@ if ! command -v forge &> /dev/null; then
     echo ">>> Installing Foundry (forge + anvil)..."
     curl -L https://foundry.paradigm.xyz | bash
     # shellcheck disable=SC1090
-    source ~/.foundry/bin
+    export PATH="~/.foundry/bin:$PATH"   
     foundryup
 else
     echo ">>> Foundry (forge) already installed."

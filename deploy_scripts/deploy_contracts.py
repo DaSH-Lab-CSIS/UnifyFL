@@ -70,22 +70,10 @@ names = []
 # Change names if you want to update multiple aggregator hosts with the correct config
 # names = [("10.8.1.173", 22), ("10.8.1.175", 22), ("10.8.1.174", 22), ("10.8.1.17", 22)]
 
-# if mode == "1":
-#     c3 = (
-#         "forge create --rpc-url {RPC_URL} --private-key 0x9b19a5202b4678b62adc4af295c791b74a04f1bced3f014772f82cd60f919989 src/SyncRound.sol:SyncRound"
-#         + " --constructor-args "
-#         + registration
-#         + " "
-#         + random_numbers
-#     )
-#     output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[0]
-#     sync = output3.decode().split("\n")[-3].split()[-1]
-# elif mode == "2":
-#     c3 = f"""forge create --rpc-url {RPC_URL} --private-key 0x9b19a5202b4678b62adc4af295c791b74a04f1bced3f014772f82cd60f919989 src/AsyncRound.sol:AsyncRound --constructor-args {registration} {random_numbers}"""
-#     output3 = subprocess.Popen(c3.split(), stdout=subprocess.PIPE).communicate()[0]
-#     sync = output3.decode().split("\n")[-3].split()[-1]
-#
+
 for i in names[1:]:
+    print("Update password here or run ssh-copy-id and remove both fields")
+    exit(0)
     shell = spur.SshShell(
         hostname=i[0], port=i[1], username="unifyfl", password="user123"
     )

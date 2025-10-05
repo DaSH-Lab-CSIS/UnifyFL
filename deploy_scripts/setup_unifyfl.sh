@@ -32,4 +32,6 @@ fi
 echo ">>> Installing project dependencies with Poetry..."
 poetry install
 
+echo ">>> Setup complete!"
+
 

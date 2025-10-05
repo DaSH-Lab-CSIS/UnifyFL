@@ -34,9 +34,3 @@ fi
 # Done
 # ========================
 echo ">>> Setup complete!"
-echo "Next steps:"
-echo "1. Run 'anvil' to start the blockchain testnet."
-echo "2. Copy a private key from anvil output into tmux_scripts/deploy_contracts.py."
-echo "3. Deploy contracts with:"
-echo "4. Copy different account ids into each nodes' config/async/agg.config.json, into the accoutn_id field"
-echo "   python tmux_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 1"

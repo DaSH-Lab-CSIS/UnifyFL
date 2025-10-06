@@ -21,6 +21,7 @@ Install python 3.10 and dependencies using poetry on all the nodes.
 cd UnifyFL/
 bash deploy_scripts/setup_unifyfl.sh
 ```
+- Note, all the commands mentioned in this document need to be run from this directory, unless mentioned otherwise.
 
 Pick one of the nodes to also host blockchain and ipfs and run.
 ```sh
@@ -38,10 +39,10 @@ Copy different account ids from available accounts of the anvil output into each
 
 Copy one of the private keys of the anvil output into `deploy_scripts/deploy_contracts.py` and run:
 ```sh
-python tmux_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 2"
+python deploy_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 2
 ```
 - This copies the deployed smart contract ids to the respective config file, this needs to be rerun before every new run for each experiment
-- First parameter 0 => async 1=> sync
+- First parameter 0 => sync 1=> async
 - Second parameter - pick_top_k etc: refer to `unifyfl/base/policies.py` - Recommended pick_top_k , pick_all
 - Third parameter - assign_score_mean, etc: refer to `unifyfl/base/policies.py` - Recommended assign_score_mean
 - Fourth parameter - k - Only used if some policy that is dependent on k - Always for the script to work
@@ -59,7 +60,12 @@ python tmux_scripts/deploy_contracts.py 0 pick_top_k assign_score_mean 2"
 - Default parameter is the cifar10 dataset, with 5 epochs.
 
 # Running the experiments
-
+- Build the docker image on all three nodes
+- `docker build -t unifyfl .`
+- Install tmuxinator, tmux
+- Run `tmuxinator local`
+- Once the training has finished
+- Run the plotting script:
 
 
 ## Citation

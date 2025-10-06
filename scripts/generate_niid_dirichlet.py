@@ -1,20 +1,12 @@
-from tqdm import trange
-import numpy as np
-import random
-import json
 import os
 import argparse
+import random
+import numpy as np
 import torch
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import Compose, Normalize, ToTensor
 from torch.utils.data import DataLoader
-
-try:
-    from datasets import Dataset, DatasetDict
-    DATASETS_AVAILABLE = True
-except ImportError:
-    DATASETS_AVAILABLE = False
-    print("Warning: datasets library not available. Install with 'pip install datasets' to use HuggingFace format.")
+from tqdm import trange
 
 random.seed(42)
 np.random.seed(42)
@@ -22,66 +14,46 @@ np.random.seed(42)
 
 def rearrange_data_by_class(data, targets, n_class):
     new_data = []
-    for i in trange(n_class):
+    for i in trange(n_class, desc="Rearranging by class"):
         idx = targets == i
         new_data.append(data[idx])
     return new_data
 
 
-def get_dataset(mode="train"):
+def get_dataset(mode="train", folder='./data/cifar10'):
     trf = Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    if mode == "test":
-        dataset = ImageFolder("./data/cifar10/test", transform=trf)
-    else:
-        dataset = ImageFolder("./data/cifar10/train", transform=trf)
-    # print(dataset.__dict__.keys())
+    dataset = ImageFolder(f"{folder}/{mode}", transform=trf)
     n_sample = len(dataset.samples)
     SRC_N_CLASS = len(dataset.classes)
-    # full batch
-    trainloader = DataLoader(dataset, batch_size=n_sample, shuffle=False)
 
-    print("Loading data from storage ...")
-    for _, xy in enumerate(trainloader, 0):
+    loader = DataLoader(dataset, batch_size=n_sample, shuffle=False)
+
+    print(f"Loading {mode} data from storage ...")
+    for _, xy in enumerate(loader, 0):
         dataset.data, dataset.targets = xy
 
-    print("Rearrange data by class...")
     data_by_class = rearrange_data_by_class(
         dataset.data.cpu().detach().numpy(),
         dataset.targets.cpu().detach().numpy(),
         SRC_N_CLASS,
     )
     print(
-        f"{mode.upper()} SET:\n  Total #samples: {n_sample}. sample shape: {dataset.samples[0]}"
+        f"{mode.upper()} SET: Total #samples: {n_sample}. Example sample: {dataset.samples[0]}"
     )
     print("  #samples per class:\n", [len(v) for v in data_by_class])
 
     return data_by_class, n_sample, SRC_N_CLASS
 
 
-def sample_class(SRC_N_CLASS, NUM_LABELS, user_id, label_random=False):
-    assert NUM_LABELS <= SRC_N_CLASS
-    if label_random:
-        source_classes = [n for n in range(SRC_N_CLASS)]
-        random.shuffle(source_classes)
-        return source_classes[:NUM_LABELS]
-    else:
-        return [(user_id + j) % SRC_N_CLASS for j in range(NUM_LABELS)]
-
-
-def devide_train_data(
-    data, n_sample, SRC_CLASSES, NUM_USERS, min_sample, alpha=0.5, sampling_ratio=0.5
-):
-    min_sample = 10  # len(SRC_CLASSES) * min_sample
-    min_size = 0  # track minimal samples per user
-    ###### Determine Sampling #######
+def devide_train_data(data, n_sample, SRC_CLASSES, NUM_USERS, min_sample, alpha=0.5, sampling_ratio=0.5):
+    min_size = 0
     while min_size < min_sample:
-        print("Try to find valid data separation")
+        print("Trying Dirichlet split...")
         idx_batch = [{} for _ in range(NUM_USERS)]
         samples_per_user = [0 for _ in range(NUM_USERS)]
         max_samples_per_user = sampling_ratio * n_sample / NUM_USERS
         for l in SRC_CLASSES:
-            # get indices for all that label
             idx_l = [i for i in range(len(data[l]))]
             np.random.shuffle(idx_l)
             if sampling_ratio < 1:
@@ -89,10 +61,7 @@ def devide_train_data(
                     min(max_samples_per_user, int(sampling_ratio * len(data[l])))
                 )
                 idx_l = idx_l[:samples_for_l]
-                print(l, len(data[l]), len(idx_l))
-            # dirichlet sampling from this label
             proportions = np.random.dirichlet(np.repeat(alpha, NUM_USERS))
-            # re-balance proportions
             proportions = np.array(
                 [
                     p * (n_per_user < max_samples_per_user)
@@ -101,18 +70,15 @@ def devide_train_data(
             )
             proportions = proportions / proportions.sum()
             proportions = (np.cumsum(proportions) * len(idx_l)).astype(int)[:-1]
-            # participate data of that label
             for u, new_idx in enumerate(np.split(idx_l, proportions)):
-                # add new idex to the user
                 idx_batch[u][l] = new_idx.tolist()
                 samples_per_user[u] += len(idx_batch[u][l])
         min_size = min(samples_per_user)
 
-    ###### CREATE USER DATA SPLIT #######
     X = [[] for _ in range(NUM_USERS)]
     y = [[] for _ in range(NUM_USERS)]
     Labels = [set() for _ in range(NUM_USERS)]
-    print("processing users...")
+    print("Processing users...")
     for u, user_idx_batch in enumerate(idx_batch):
         for l, indices in user_idx_batch.items():
             if len(indices) == 0:
@@ -125,204 +91,88 @@ def devide_train_data(
 
 
 def divide_test_data(NUM_USERS, SRC_CLASSES, test_data, Labels, unknown_test):
-    # Create TEST data for each user.
     test_X = [[] for _ in range(NUM_USERS)]
     test_y = [[] for _ in range(NUM_USERS)]
     idx = {l: 0 for l in SRC_CLASSES}
-    for user in trange(NUM_USERS):
-        if unknown_test:  # use all available labels
+    for user in trange(NUM_USERS, desc="Splitting test data"):
+        if unknown_test:
             user_sampled_labels = SRC_CLASSES
         else:
             user_sampled_labels = list(Labels[user])
         for l in user_sampled_labels:
             num_samples = int(len(test_data[l]) / NUM_USERS)
-            assert num_samples + idx[l] <= len(test_data[l])
-            test_X[user] += test_data[l][idx[l] : idx[l] + num_samples].tolist()
+            test_X[user] += test_data[l][idx[l]: idx[l] + num_samples].tolist()
             test_y[user] += (l * np.ones(num_samples)).tolist()
-            assert len(test_X[user]) == len(
-                test_y[user]
-            ), f"{len(test_X[user])} == {len(test_y[user])}"
             idx[l] += num_samples
     return test_X, test_y
 
 
-def save_as_huggingface_dataset(dataset_dict, data_path, mode):
-    """Save dataset in HuggingFace datasets format"""
-    if not DATASETS_AVAILABLE:
-        raise ImportError("datasets library not available. Install with 'pip install datasets'")
+def save_client_data(output_dir, mode, client_id, x_data, y_data):
+    """Save each client's data to OUTPUT/train{client_id} or OUTPUT/test{client_id} in Hugging Face format"""
+    from datasets import Dataset, Features, Array3D, ClassLabel
     
-    # Convert the nested structure to a flat structure suitable for HuggingFace datasets
-    all_data = []
-    for user_id, user_name in enumerate(dataset_dict["users"]):
-        user_data = dataset_dict["user_data"][user_name]
-        x_data = user_data["x"].numpy()
-        y_data = user_data["y"].numpy()
-        
-        for i in range(len(x_data)):
-            all_data.append({
-                "user_id": user_id,
-                "user_name": user_name,
-                "image": x_data[i],
-                "label": int(y_data[i])
-            })
+    if mode == "train":
+        client_dir = os.path.join(output_dir, f"train{client_id}")
+    else:
+        client_dir = os.path.join(output_dir, f"test{client_id}")
+
+    os.makedirs(client_dir, exist_ok=True)
+
+    # Convert to numpy arrays
+    x_array = np.array(x_data, dtype=np.float32)
+    y_array = np.array(y_data, dtype=np.int64)
     
-    # Create HuggingFace dataset
-    hf_dataset = Dataset.from_list(all_data)
+    # Create Hugging Face dataset
+    dataset_dict = {
+        "image": x_array,
+        "label": y_array
+    }
     
-    # Save to disk
-    hf_dataset.save_to_disk(data_path)
-    print(f"Saved HuggingFace dataset to {data_path}")
+    # Define features
+    features = Features({
+        "image": Array3D(shape=(3, 32, 32), dtype="float32"),
+        "label": ClassLabel(num_classes=10)
+    })
     
-    return hf_dataset
+    dataset = Dataset.from_dict(dataset_dict, features=features)
+    
+    # Save in Hugging Face format
+    dataset.save_to_disk(client_dir)
+    print(f"Saved {mode} data for client {client_id} -> {client_dir} (HF format)")
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--format",
-        "-f",
-        type=str,
-        default="pt",
-        help="Format of saving: pt (torch.save), json, hf (HuggingFace datasets)",
-        choices=["pt", "json", "hf"],
-    )
-    parser.add_argument(
-        "--n_class", type=int, default=10, help="number of classification labels"
-    )
-    parser.add_argument(
-        "--min_sample", type=int, default=10, help="Min number of samples per user."
-    )
-    parser.add_argument(
-        "--sampling_ratio",
-        type=float,
-        default=0.05,
-        help="Ratio for sampling training samples.",
-    )
-    parser.add_argument(
-        "--unknown_test",
-        type=int,
-        default=0,
-        help="Whether allow test label unseen for each user.",
-    )
-    parser.add_argument(
-        "--alpha",
-        type=float,
-        default=0.01,
-        help="alpha in Dirichelt distribution (smaller means larger heterogeneity)",
-    )
-    parser.add_argument(
-        "--n_user",
-        type=int,
-        default=20,
-        help="number of local clients, should be muitiple of 10.",
-    )
+    parser.add_argument("--n_user", type=int, default=12, help="number of local clients")
+    parser.add_argument("--n_class", type=int, default=10, help="number of classes")
+    parser.add_argument("--min_sample", type=int, default=10, help="Min samples per client")
+    parser.add_argument("--sampling_ratio", type=float, default=0.05, help="Sampling ratio")
+    parser.add_argument("--alpha", type=float, default=0.5, help="Dirichlet alpha")
+    parser.add_argument("--unknown_test", type=int, default=0, help="Allow unseen test labels per user")
+    parser.add_argument("--dataset", type=str, default="data/cifar10", help="source dataset")
+    parser.add_argument("--output", type=str, default="data/cifar10_split", help="output folder")
     args = parser.parse_args()
-    
-    # Check if HuggingFace format is requested but library is not available
-    if args.format == "hf" and not DATASETS_AVAILABLE:
-        raise ImportError("datasets library not available. Install with 'pip install datasets' to use HuggingFace format.")
-    
-    print()
-    print("Number of users: {}".format(args.n_user))
-    print("Number of classes: {}".format(args.n_class))
-    print("Min # of samples per uesr: {}".format(args.min_sample))
-    print("Alpha for Dirichlet Distribution: {}".format(args.alpha))
-    print("Ratio for Sampling Training Data: {}".format(args.sampling_ratio))
-    print("Save format: {}".format(args.format))
-    NUM_USERS = args.n_user
 
-    # Setup directory for train/test data
-    path_prefix = (
-        f"u{args.n_user}c{args.n_class}-alpha{args.alpha}-ratio{args.sampling_ratio}"
+    print(f"Preparing CIFAR10 for {args.n_user} clients. Output -> {args.output}")
+
+    train_data, n_train_sample, SRC_N_CLASS = get_dataset("train", args.dataset)
+    test_data, n_test_sample, SRC_N_CLASS = get_dataset("test", args.dataset)
+    SRC_CLASSES = list(range(SRC_N_CLASS))
+
+    train_X, train_y, Labels, idx_batch, samples_per_user = devide_train_data(
+        train_data, n_train_sample, SRC_CLASSES, args.n_user, args.min_sample, args.alpha, args.sampling_ratio
     )
+    test_X, test_y = divide_test_data(args.n_user, SRC_CLASSES, test_data, Labels, args.unknown_test)
 
-    def process_user_data(
-        mode, data, n_sample, SRC_CLASSES, Labels=None, unknown_test=0
-    ):
-        if mode == "train":
-            X, y, Labels, idx_batch, samples_per_user = devide_train_data(
-                data,
-                n_sample,
-                SRC_CLASSES,
-                NUM_USERS,
-                args.min_sample,
-                args.alpha,
-                args.sampling_ratio,
-            )
-        if mode == "test":
-            assert Labels != None or unknown_test
-            X, y = divide_test_data(NUM_USERS, SRC_CLASSES, data, Labels, unknown_test)
-        dataset = {"users": [], "user_data": {}, "num_samples": []}
-        for i in range(NUM_USERS):
-            uname = "f_{0:05d}".format(i)
-            dataset["users"].append(uname)
+    # Save training data for each client
+    for u in range(args.n_user):
+        save_client_data(args.output, "train", u, train_X[u], train_y[u])
 
-            dataset["user_data"][uname] = {
-                "x": torch.tensor(X[i], dtype=torch.float32),
-                "y": torch.tensor(list(map(int, y[i])), dtype=torch.int64),
-            }
-            dataset["num_samples"].append(len(X[i]))
+    # Save test data for each client
+    for u in range(args.n_user):
+        save_client_data(args.output, "test", u, test_X[u], test_y[u])
 
-        print("{} #sample by user:".format(mode.upper()), dataset["num_samples"])
-
-        data_path = f"./{path_prefix}/{mode}"
-        if not os.path.exists(data_path):
-            os.makedirs(data_path)
-
-        if args.format == "hf":
-            # For HuggingFace format, use a different file structure
-            data_path = os.path.join(data_path, f"{mode}_dataset")
-            save_as_huggingface_dataset(dataset, data_path, mode)
-        else:
-            data_path = os.path.join(data_path, "{}.".format(mode) + args.format)
-            if args.format == "json":
-                raise NotImplementedError(
-                    "json is not supported because the train_data/test_data uses the tensor instead of list and tensor cannot be saved into json."
-                )
-                with open(data_path, "w") as outfile:
-                    print(f"Dumping train data => {data_path}")
-                    json.dump(dataset, outfile)
-            elif args.format == "pt":
-                with open(data_path, "wb") as outfile:
-                    print(f"Dumping train data => {data_path}")
-                    torch.save(dataset, outfile)
-        
-        if mode == "train":
-            for u in range(NUM_USERS):
-                print("{} samples in total".format(samples_per_user[u]))
-                train_info = ""
-                # train_idx_batch, train_samples_per_user
-                n_samples_for_u = 0
-                for l in sorted(list(Labels[u])):
-                    n_samples_for_l = len(idx_batch[u][l])
-                    n_samples_for_u += n_samples_for_l
-                    train_info += "c={},n={}| ".format(l, n_samples_for_l)
-                print(train_info)
-                print(
-                    "{} Labels/ {} Number of training samples for user [{}]:".format(
-                        len(Labels[u]), n_samples_for_u, u
-                    )
-                )
-            return Labels, idx_batch, samples_per_user
-
-    print(f"Reading source dataset.")
-    train_data, n_train_sample, SRC_N_CLASS = get_dataset(mode="train")
-    test_data, n_test_sample, SRC_N_CLASS = get_dataset(mode="test")
-    SRC_CLASSES = [l for l in range(SRC_N_CLASS)]
-    random.shuffle(SRC_CLASSES)
-    print("{} labels in total.".format(len(SRC_CLASSES)))
-    Labels, idx_batch, samples_per_user = process_user_data(
-        "train", train_data, n_train_sample, SRC_CLASSES
-    )
-    process_user_data(
-        "test",
-        test_data,
-        n_test_sample,
-        SRC_CLASSES,
-        Labels=Labels,
-        unknown_test=args.unknown_test,
-    )
-    print("Finish Generating User samples")
+    print("✅ Finished preparing client datasets.")
 
 
 if __name__ == "__main__":

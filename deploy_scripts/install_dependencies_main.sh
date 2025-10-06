@@ -14,6 +14,7 @@ if ! command -v ipfs &> /dev/null; then
     tar -xvzf /tmp/ipfs.tar.gz -C /tmp
     sudo bash /tmp/kubo/install.sh
     rm -rf /tmp/ipfs*
+    ipfs init
 else
     echo ">>> IPFS already installed."
 fi
@@ -23,7 +24,11 @@ if ! command -v forge &> /dev/null; then
     echo ">>> Installing Foundry (forge + anvil)..."
     curl -L https://foundry.paradigm.xyz | bash
     # shellcheck disable=SC1090
+<<<<<<< Updated upstream
     export PATH="~/.foundry/bin:$PATH"   
+=======
+    export PATH="~/.foundry/bin:$PATH"
+>>>>>>> Stashed changes
     foundryup
 else
     echo ">>> Foundry (forge) already installed."

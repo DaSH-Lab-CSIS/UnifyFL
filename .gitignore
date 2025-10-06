@@ -6,5 +6,4 @@ save/*
 out/*
 results/*
 wandb/*
-scripts/*
 poetry.lock

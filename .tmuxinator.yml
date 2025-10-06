@@ -15,18 +15,14 @@ windows:
             - cd ~/UnifyFL
             - poetry run async-agg configs/async/agg.config.json
         - d3:
-            - ssh colva4
+            - ssh node2
             - cd ~/UnifyFL
             - poetry run async-agg configs/async/agg.config.json
         - d4:
-            - ssh colva2
+            - ssh node3
             - cd ~/UnifyFL
             - poetry run async-agg configs/async/agg.config.json
-        - ipfs:
-            - ipfs daemon
-        - anvil:
-            - SYSTEM_IP=$(hostname -I | awk '{print $1}')
-            - anvil --host $SYSTEM_IP 
+       
   - scorers:
       layout: tiled
       panes:
@@ -34,11 +30,11 @@ windows:
             - cd ~/UnifyFL
             - poetry run async-scorer configs/async/agg.config.json
         - d3:
-            - ssh colva4
+            - ssh node2
             - cd ~/UnifyFL
             - poetry run async-scorer configs/async/agg.config.json
         - d4:
-            - ssh colva2
+            - ssh node3
             - cd ~/UnifyFL
             - poetry run async-scorer configs/async/agg.config.json
   - rpi:
@@ -48,10 +44,18 @@ windows:
             - cd ~/UnifyFL
             - docker compose up
         - rpi2:
-            - ssh colva4
+            - ssh node2
             - cd ~/UnifyFL
             - docker compose up
         - rpi3:
-            - ssh colva2
+            - ssh node3
             - cd ~/UnifyFL
             - docker compose up
+  - support:
+        layout: tiled
+        panes:
+        - ipfs:
+            - ipfs daemon
+        - anvil:
+            - SYSTEM_IP=$(hostname -I | awk '{print $1}')
+            - anvil --host $SYSTEM_IP 

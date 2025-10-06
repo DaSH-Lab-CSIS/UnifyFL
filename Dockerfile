@@ -15,7 +15,7 @@ RUN pip install "poetry==$POETRY_VERSION"
 # Copy only requirements to cache them in docker layer
 WORKDIR /code
 COPY pyproject.toml /code/
-
+COPY . /code/
 
 # Project initialization:
 RUN poetry config virtualenvs.create false \
@@ -23,7 +23,7 @@ RUN poetry config virtualenvs.create false \
 
 
 
-COPY . /code/
+
 
 
 CMD ["poetry", "run", "party", "configs/party.json"]

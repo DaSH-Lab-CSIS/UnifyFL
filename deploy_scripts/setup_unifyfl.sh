@@ -6,6 +6,9 @@ set -euo pipefail
 # Python & Poetry Setup
 # ========================
 
+echo "Warning poetry and python will be installed for this user"
+echo "Run this in a virtualenv to prevent this"
+
 # --- Check Python 3.10 ---
 if ! python3.10 --version &> /dev/null; then
     echo ">>> Installing Python 3.10..."
@@ -32,6 +35,9 @@ fi
 echo ">>> Installing project dependencies with Poetry..."
 poetry install
 
+# Creating folders for models
+mkdir upload
+mkdir download
 echo ">>> Setup complete!"
 
 

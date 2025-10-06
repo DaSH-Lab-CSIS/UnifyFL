@@ -1,5 +1,5 @@
 # To be run from the base folder, it moves into blockchain folder to run commands.
-# Arguments python3 tmux_scripts/deploy_contracts.py <async/sync> pick_top_k assign_score_mean 1
+# Arguments python3 tmux_scripts/deploy_contracts.py <async/sync> pick_top_k assign_score_mean 
 #TODO: add other policies
 import subprocess, sys
 import spur
@@ -60,9 +60,9 @@ sync = output3.decode().split("\n")[-3].split()[-1]
 print(output3.decode(), sync)
 os.chdir("..")
 if len(sys.argv) > 2:
-    com2 = f"python3 UnifyFL/tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+    com2 = f"python3 UnifyFL/deploy_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
 else:
-    com2 = f"python3 UnifyFL/tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
+    com2 = f"python3 UnifyFL/deploy_scripts/updatejson.py {registration} {sync} async {experiment_id}"
 print(com2)
 print(subprocess.Popen(com2.split(), stdout=subprocess.PIPE).communicate()[0])
 names = []
@@ -80,9 +80,13 @@ for i in names[1:]:
     result = shell.run("ls".split())
     # print(result.output)
     if len(sys.argv) > 2:
-        com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
+        com2 = f"python3 deploy_scripts/updatejson.py {registration} {sync} async {aggregation_policy} {scoring_policy} {k} {experiment_id}"
     else:
-        com2 = f"python3 tmux_scripts/updatejson.py {registration} {sync} async {experiment_id}"
+        com2 = f"python3 deploy_scripts/updatejson.py {registration} {sync} async {experiment_id}"
     print(com2)
     shell.run(com2.split())
     print(f"ran for {i}")
+
+
+print("\n\nPlease copy your experiment id\n\n")
+print(experiment_id)

@@ -256,7 +256,8 @@ class AsyncServer(Server):
             try:
                 async_contract.functions.submitModel(cid).transact()
                 break
-            except:
+            except Exception as e:
+                print(e)
                 sleep(5)
                 continue
         logger.info("Model submitted to contarct")

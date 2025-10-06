@@ -32,6 +32,7 @@ tqdm = "^4.66.1"
 opacus = "1.4.1"
 datasets = "^3.4.1"
 spur = "^0.3.23"
+aiohttp = "==3.11.0"
 
 
 [tool.poetry.group.dev.dependencies]

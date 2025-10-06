@@ -6,9 +6,11 @@ Official implementation of UnifyFL: Enabling Decentralised Cross-Silo Federated 
 
 ## Setup
 
-quick start guide for setup with 3 aggregators on 3 nodes each. FL clients are colocated on the nodes. Also we are picking a single node to also host a blockchain and ipfs node using anvil and kubo respectively. In a real world deployment, this is extended to geth chain and ipfs cluster but here we give instructions to this for simplicity. we have pre made scripts for ubuntu but the software is available on all distros. the setup is for async pick_top_k assign_score_mean 2.
+This quick start guide demonstrates how to deploy UnifyFL with 3 aggregators, each running on a separate node, with federated learning (FL) clients colocated on the same nodes. Additionally, one node is configured to host both a blockchain (via Anvil) and a distributed storage service (via Kubo/IPFS). For simplicity, we use Anvil and Kubo in this guide; however, in a real-world deployment these components can be replaced with a Geth-based blockchain and an IPFS cluster for production-grade scalability.
 
-Clone the repo on all the nodes
+To simplify deployment, Docker Compose is used to spin up FL clients and aggregator services quickly. We provide ready-to-use scripts for Ubuntu, but the setup is compatible with all major Linux distributions. The configuration demonstrated here runs in asynchronous mode using the pick_top_k and assign_score_mean 2 strategies.
+
+To begin, clone the repository on all participating nodes:
 ```sh
 cd ~
 git clone https://github.com/DaSH-Lab-CSIS/UnifyFL

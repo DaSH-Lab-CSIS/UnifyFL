@@ -1,9 +1,8 @@
 #!/bin/bash
 
-remote_user="ekatrafl"
+remote_user="unifyfl"
 remote_ips=("10.8.1.173" "10.8.1.175" "10.8.1.174")
-remote_path="~/EkatraFL/save/$1/$3/$2/*"
-# local_destination="/home/primus/Documents/DaSHLab/EkatraFL/results"
+remote_path="~/UnifyFL/save/$1/$3/$2/*"
 local_destination=$4
 
 for remote_ip in ${remote_ips[*]};

@@ -2,8 +2,9 @@ import csv
 import matplotlib.pyplot as plt
 import time
 import json
+import sys
 
-config_file = open("mid.json")
+config_file = sys.argv[1]
 config = json.load(config_file)
 
 accuracy_data = []

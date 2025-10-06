@@ -1,4 +1,5 @@
-"""Async EkatraFl server implementation."""
+"""Async UnifyFL server implementation."""
+
 from collections import OrderedDict
 import getpass
 import json
